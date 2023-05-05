@@ -55,6 +55,28 @@ def get_bookmark(topic, name):
         fetchResult['description'],
     )
 
+def get_bookmark_with_id(id):
+    fetchResult = db.get_db().execute(
+        'SELECT b.id as id, b.name as name, b.link as link,'
+        ' b.description as description, t.id as tag_id, t.name as tag_name '
+        ' FROM bookmarks as b,'
+        ' topics as t WHERE b.topic_id = t.id'
+        ' AND b.id = ?',
+        (id,)
+    ).fetchone()
+    return Bookmark(
+        fetchResult['id'],
+        fetchResult['name'],
+        Topic(
+            fetchResult['tag_id'],
+            fetchResult['tag_name'],
+        ),
+        fetchResult['link'],
+        fetchResult['description'],
+    )
+
+
+
 def get_tagged_with(tag_topic, tag_name, topic=None):
     bookmark_id = get_bookmark(tag_topic, tag_name).id
     if topic:
@@ -106,6 +128,55 @@ def add_bookmark(name, topic_name, link, description):
         (name, topic.id, link, description)
     )
     db.get_db().commit()
+
+def patch_bookmark(id, name=None, link=None, topic_name=None, description=None, update_mask=None):
+    if not any([name, link, topic_name, description]):
+        raise
+    bookmark = get_bookmark_with_id(id)
+    change_topic = topic_name and bookmark.topic.name != topic_name
+    topic_id = None
+    if topic_name:
+        topic = get_topic_with_name(topic_name)
+        if topic:
+            topic_id = topic.id
+        else:
+            add_topic(topic_name)
+            topic = get_topic_with_name(topic_name)
+            topic_id = topic.id
+    if not any([name, link, change_topic, description]):
+        raise
+
+    update_fields = ['name', 'link', 'description', 'topic']
+    if update_mask:
+        update_fields = update_mask.split(',')
+
+    sets = {}
+    if name and ('name' in update_fields):
+        sets['name'] = name
+    if link and ('link' in update_fields):
+        sets['link'] = link
+    if change_topic and ('topic' in update_fields):
+        sets['topic_id'] = topic_id
+    if description and ('description' in update_fields):
+        sets['description'] = description
+
+    set_stmt = ' SET '
+    set_values = []
+    first = True
+    for key, value in sets.items():
+        if not first:
+            set_stmt += ', '
+        set_stmt += key + ' = ?'
+        set_values.append(value)
+        first = False
+
+    db.get_db().execute(
+        'UPDATE bookmarks' + set_stmt + ' WHERE id = ?',
+        set_values + [id]
+        #(name, link, topic.id, description, id,)
+    )
+    db.get_db().commit()
+
 
 def delete_bookmark(id):
     db.get_db().execute(

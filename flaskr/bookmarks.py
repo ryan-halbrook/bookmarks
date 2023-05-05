@@ -22,3 +22,15 @@ def bookmarks_post():
 def bookmarks_delete(id):
     core.delete_bookmark(id)
     return ''
+
+@bp.patch('/bookmarks/<id>')
+def bookmarks_patch(id):
+    data = request.json
+    update_mask = request.args.get('update_mask', None)
+    core.patch_bookmark(id,
+                        name=data.get('name', None),
+                        link=data.get('link', None),
+                        topic_name=data.get('topic', None),
+                        description=data.get('description', None),
+                        update_mask=update_mask)
+    return ''

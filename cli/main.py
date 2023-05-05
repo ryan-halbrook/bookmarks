@@ -58,6 +58,32 @@ def bookmark_add(args):
     with request.urlopen(req) as response:
         print(response.status)
 
+def bookmark_update(args):
+    id = args.id
+    name = args.name
+    link = args.link
+    description = args.description or ''
+    topic = args.topic
+    if not any([name, link, topic, description]):
+        print('Specify name, link, topic or description')
+        return
+    data = {}
+    if name:
+        data['name'] = name
+    if link:
+        data['link'] = link
+    if topic:
+        data['topic'] = topic
+    if description:
+        data['description'] = description
+    req = request.Request('http://127.0.0.1:5000/bookmarks/' + str(id),
+                          data=bytes(json.dumps(data), encoding='utf-8'),
+                          headers={'Content-Type': 'application/json',
+                                   'Accept': 'application/json'},
+                          method='PATCH')
+    with request.urlopen(req) as response:
+        print(response.status)
+
 def topic_list(args):
     req = request.Request('http://127.0.0.1:5000/topics')
     with request.urlopen(req) as response:
@@ -109,6 +135,14 @@ def register_bookmark_parsers(parser_parent):
     delete = parser.add_parser('rm')
     delete.add_argument('--id', type=str)
     delete.set_defaults(func=bookmark_delete)
+
+    update = parser.add_parser('update')
+    update.add_argument('id', type=int)
+    update.add_argument('--name', type=str)
+    update.add_argument('--link', type=str)
+    update.add_argument('--description', type=str)
+    update.add_argument('--topic', type=str)
+    update.set_defaults(func=bookmark_update)
 
 def register_topic_parsers(parser_parent):
     parser_topic = parser_parent.add_parser('topic')
