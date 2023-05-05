@@ -75,7 +75,43 @@ def get_bookmark_with_id(id):
         fetchResult['description'],
     )
 
-
+def get_tags_for_bookmark(bookmark_id, topic=None):
+    if topic:
+        fetchResult = db.get_db().execute(
+            'SELECT ta.name as topic_name, a.id as bookmark_id,'
+            ' a.name as bookmark_name, a.link as bookmark_link,'
+            ' ta.id as topic_id'
+            ' FROM tags as t, bookmarks as a, topics as ta'
+            ' WHERE a.topic_id = ta.id'
+            ' AND t.bookmark_id = ? AND t.tag_bookmark_id = a.id'
+            ' AND ta.name = ?',
+            (bookmark_id, topic,)
+        ).fetchall()
+    else:
+        fetchResult = db.get_db().execute(
+            'SELECT ta.name as topic_name, a.id as bookmark_id,'
+            ' a.name as bookmark_name, a.link as bookmark_link,'
+            ' ta.id as topic_id, a.description as bookmark_description'
+            ' FROM tags as t, bookmarks as a, topics as ta'
+            ' WHERE a.topic_id = ta.id'
+            ' AND t.bookmark_id = ? AND t.tag_bookmark_id = a.id',
+            (bookmark_id,)
+        ).fetchall()
+    bookmarks = []
+    for row in fetchResult:
+        bookmarks.append(
+            Bookmark(
+                row['bookmark_id'],
+                row['bookmark_name'],
+                Topic(
+                    row['topic_id'],
+                    row['topic_name']
+                ),
+                row['bookmark_link'],
+                row['bookmark_description']
+            )
+        )
+    return bookmarks
 
 def get_tagged_with(tag_topic, tag_name, topic=None):
     bookmark_id = get_bookmark(tag_topic, tag_name).id

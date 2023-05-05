@@ -9,6 +9,14 @@ def bookmarks():
     topic = request.args.get('topic', None)
     return [b.to_json() for b in core.get_bookmarks(topic=topic)]
 
+@bp.get('/bookmarks/<id>')
+def bookmark_id(id):
+    return core.get_bookmark_with_id(id).to_json()
+
+@bp.get('/bookmarks/<id>/tags')
+def bookmark_tags(id):
+    return [t.to_json() for t in core.get_tags_for_bookmark(id)]
+
 @bp.post('/bookmarks')
 def bookmarks_post():
     data = request.json

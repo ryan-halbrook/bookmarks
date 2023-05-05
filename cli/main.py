@@ -32,6 +32,37 @@ def bookmark_list(args):
                            collection=bookmarks,
                            row_gen=row_gen))
 
+def bookmark_show(args):
+    url = 'http://127.0.0.1:5000/bookmarks/' + str(args.id)
+    bookmark = None
+    with request.urlopen(request.Request(url)) as response:
+        bookmark = json.loads(response.read())
+    if not bookmark:
+        raise
+
+    print(bookmark['name'])
+    print(bookmark['description'])
+    print()
+    print('Topic (ID): ' + bookmark['topic']['name'] + '(' + str(bookmark['topic']['id']) + ')')
+    print('Link: ' + bookmark['link'])
+    print('ID: ' + str(bookmark['id']))
+    print()
+    print('Tags:')
+
+    url = 'http://127.0.0.1:5000/bookmarks/' + str(args.id) + '/tags'
+    with request.urlopen(request.Request(url)) as response:
+        bookmarks = json.loads(response.read())
+        def row_gen(b):
+            return [b['id'],
+                    b['topic']['name'],
+                    b['name'],
+                    b['link'],
+                    b['description']]
+        field_names = ['id', 'topic', 'name', 'link', 'description']
+        print(table_create(field_names=field_names,
+                           collection=bookmarks,
+                           row_gen=row_gen))
+
 def bookmark_delete(args):
     req = request.Request('http://127.0.0.1:5000/bookmarks/' + args.id,
                           method='DELETE')
@@ -124,6 +155,10 @@ def register_bookmark_parsers(parser_parent):
     ls = parser.add_parser('ls')
     ls.add_argument('--topic', type=str)
     ls.set_defaults(func=bookmark_list)
+
+    show = parser.add_parser('sh')
+    show.add_argument('id', type=int)
+    show.set_defaults(func=bookmark_show)
 
     add = parser.add_parser('add')
     add.add_argument('--name', type=str)
