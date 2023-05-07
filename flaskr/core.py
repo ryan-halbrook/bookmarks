@@ -115,11 +115,14 @@ def get_tags_for_bookmark(bookmark_id, topic=None):
 
 def get_tagged_with(tag_topic, tag_name, topic=None):
     bookmark_id = get_bookmark(tag_topic, tag_name).id
+    return get_tagged_with_id(bookmark_id, topic=topic)
+
+def get_tagged_with_id(bookmark_id, topic=None):
     if topic:
         fetchResult = db.get_db().execute(
             'SELECT ta.name as topic_name, a.id as bookmark_id,'
             ' a.name as bookmark_name, a.link as bookmark_link,'
-            ' ta.id as topic_id'
+            ' ta.id as topic_id, a.description as bookmark_description'
             ' FROM tags as t, bookmarks as a, topics as ta'
             ' WHERE a.topic_id = ta.id'
             ' AND t.bookmark_id = a.id AND t.tag_bookmark_id = ?'
@@ -137,6 +140,7 @@ def get_tagged_with(tag_topic, tag_name, topic=None):
             (bookmark_id,)
         ).fetchall()
     bookmarks = []
+    print(len(fetchResult))
     for row in fetchResult:
         bookmarks.append(
             Bookmark(
@@ -218,6 +222,20 @@ def delete_bookmark(id):
     db.get_db().execute(
         'DELETE FROM bookmarks WHERE id = ?',
         (id,)
+    )
+    db.get_db().commit()
+
+def tag_bookmark(bookmark_id, tag_bookmark_id):
+    if bookmark_id == tag_bookmark_id:
+        raise
+    bookmark = get_bookmark_with_id(bookmark_id)
+    tag_bookmark = get_bookmark_with_id(tag_bookmark_id)
+    if not (bookmark and tag_bookmark):
+        raise
+    db.get_db().execute(
+        'INSERT INTO tags (bookmark_id, tag_bookmark_id)'
+        ' VALUES (?, ?)',
+        (bookmark.id, tag_bookmark.id,)
     )
     db.get_db().commit()
 

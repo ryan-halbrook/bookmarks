@@ -4,7 +4,7 @@ import flaskr.core as core
 
 bp = Blueprint('tags', __name__, url_prefix='/')
 
-@bp.route('/tags')
+@bp.get('/tags')
 def tags():
     return [t.to_json() for t in core.get_tags()]
 
