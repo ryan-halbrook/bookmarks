@@ -3,6 +3,7 @@ import os
 from flask import Flask, request
 import json
 
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -40,5 +41,8 @@ def create_app(test_config=None):
     
     from . import tags
     app.register_blueprint(tags.bp)
+
+    from . import resources
+    app.register_blueprint(resources.bp, name="resources")
 
     return app

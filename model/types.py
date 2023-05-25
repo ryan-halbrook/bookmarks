@@ -10,6 +10,7 @@ class Topic:
             'name': self.name if self.name else 'UNRESOLVED',
         }
 
+
 class Bookmark:
     def __init__(self, id: int, name: str, topic: Topic, link: str, description: str):
         self.id = id
@@ -26,6 +27,7 @@ class Bookmark:
             'link': self.link,
             'description': self.description,
         }
+
 
 class Tag:
     def __init__(self, id: int, bookmark: Bookmark, tag_bookmark: Bookmark):

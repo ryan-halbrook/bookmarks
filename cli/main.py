@@ -7,8 +7,10 @@ from prettytable import PrettyTable, SINGLE_BORDER
 
 BASE_URL = 'http://127.0.0.1:5000'
 
+
 def url_create(resource):
     return BASE_URL + resource
+
 
 def table_create(field_names, collection, row_gen):
     table = PrettyTable()
@@ -19,8 +21,10 @@ def table_create(field_names, collection, row_gen):
         table.add_row(row_gen(item))
     return table
 
+
 def table_create_bookmarks(bookmarks):
     field_names = ['ID', 'Topic', 'Name', 'Link', 'Description']
+
     def row_gen(b):
         return [b['id'],
                 b['topic']['name'],
@@ -31,6 +35,7 @@ def table_create_bookmarks(bookmarks):
                         collection=bookmarks,
                         row_gen=row_gen)
 
+
 def request_create_json(url, data, method='POST'):
     return request.Request(
             url,
@@ -38,6 +43,7 @@ def request_create_json(url, data, method='POST'):
             headers={'Content-Type': 'application/json',
                      'Accept': 'application/json'},
                       method=method)
+
 
 def api_call(resource, data=None, method=None):
     url = url_create(resource)
@@ -51,18 +57,23 @@ def api_call(resource, data=None, method=None):
         req = request.Request(url, method=method)
     return request.urlopen(req)
 
+
 def api_get(url):
     response = api_call(url)
     return json.loads(response.read())
 
+
 def api_post(url, data):
     return api_call(url, data=data).status
+
 
 def api_patch(url, data):
     return api_call(url, data=data, method='PATCH').status
 
+
 def api_delete(url):
     return api_call(url, data=data, method='DELETE').status
+
 
 def bookmark_resources(args):
     topic = args.topic
@@ -82,6 +93,7 @@ def bookmark_resources(args):
             print(table_create_bookmarks(bookmarks))
             print()
 
+
 def bookmark_list(args):
     url = '/bookmarks'
     if args.topic:
@@ -91,6 +103,7 @@ def bookmark_list(args):
         print(table_create_bookmarks(bookmarks))
     else:
         print('No bookmarks found')
+
 
 def bookmark_show(args):
     bookmark = api_get('/bookmarks/' + str(args.id))
@@ -113,8 +126,10 @@ def bookmark_show(args):
     else:
         print('No tags')
 
+
 def bookmark_delete(args):
     print(api_delete('/bookmarks/' + args.id))
+
 
 def bookmark_add(args):
     name = args.name
@@ -129,6 +144,7 @@ def bookmark_add(args):
             "description": description,
             "topic": topic}
     print(api_post('/bookmarks', data=data))
+
 
 def bookmark_update(args):
     id = args.id
@@ -151,11 +167,13 @@ def bookmark_update(args):
 
     print(api_patch('/bookmarks/' + str(id), data=data))
 
+
 def bookmark_tag(args):
     id = args.id
     tag_id = args.tag
     data = {'bookmark_id': id, 'tag_bookmark_id': tag_id}
     print(api_post('/bookmarks/' + str(id) + '/tags', data=data))
+
 
 def topic_list(args):
     topics = api_get('/topics')
@@ -164,6 +182,7 @@ def topic_list(args):
     print(table_create(field_names=['ID', 'Name'],
                        collection=topics,
                        row_gen=row_gen))
+
 
 def tag_list(args):
     tags = api_get('/tags')
@@ -187,6 +206,7 @@ def tag_list(args):
     print(table_create(field_names=field_names,
                        collection=tags,
                        row_gen=row_gen))
+
 
 def register_bookmark_parsers(parser_parent):
     parser_bookmark = parser_parent.add_parser('bookmark')
@@ -229,6 +249,7 @@ def register_bookmark_parsers(parser_parent):
     resources.add_argument('--topic', type=str)
     resources.set_defaults(func=bookmark_resources)
 
+
 def register_topic_parsers(parser_parent):
     parser_topic = parser_parent.add_parser('topic')
     parser = parser_topic.add_subparsers(required=True)
@@ -236,12 +257,14 @@ def register_topic_parsers(parser_parent):
     ls = parser.add_parser('ls')
     ls.set_defaults(func=topic_list)
 
+
 def register_tag_parsers(parser_parent):
     parser_tag = parser_parent.add_parser('tag')
     parser = parser_tag.add_subparsers(required=True)
 
     ls = parser.add_parser('ls')
     ls.set_defaults(func=tag_list)
+
 
 parser = argparse.ArgumentParser(
     prog=sys.argv[0],

@@ -1,58 +1,63 @@
-import flaskr.db as db
-from flask import Blueprint, request, abort
-import flaskr.core as core
+from flask import Blueprint, request, Response, abort
+import flaskr.core.bookmark as bookmark
+import flaskr.core.topic as topic
 
 bp = Blueprint('bookmarks', __name__, url_prefix='/')
 
-@bp.get('/bookmarks')
-def bookmarks():
-    topic = request.args.get('topic', None)
-    return [b.to_json() for b in core.get_bookmarks(topic=topic)]
+
+@bp.after_request
+def after_request(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
 
 @bp.post('/bookmarks')
 def bookmarks_post():
     data = request.json
-    topic = core.get_topic_with_name(data['topic'])
-    if not topic:
-        core.add_topic(data['topic'])
-    core.add_bookmark(data['name'], data['topic'], data['link'], data['description'])
+    bookmark_topic = topic.fetch_single(name=data['topic'])
+    if not bookmark_topic:
+        topic.create(data['topic'])
+        bookmark_topic = topic.fetch_single(name=data['topic'])
+    bookmark.create(data['name'],
+                    bookmark_topic.id,
+                    data['link'],
+                    data['description'])
     return ''
+
 
 @bp.get('/bookmarks/<id>')
-def bookmark_id(id):
-    return core.get_bookmark_with_id(id).to_json()
+def bookmarks_get(id):
+    return bookmark.fetch_single(id).to_json()
 
-@bp.delete('/bookmarks/<id>')
-def bookmarks_delete(id):
-    core.delete_bookmark(id)
-    return ''
+
+@bp.get('/bookmarks')
+def bookmarks_get_collection():
+    topic = request.args.get('topic', None)
+    return [b.to_json() for b in bookmark.fetch(topic_name=topic)]
+
 
 @bp.patch('/bookmarks/<id>')
 def bookmarks_patch(id):
     data = request.json
-    update_mask = request.args.get('update_mask', None)
-    core.patch_bookmark(id,
-                        name=data.get('name', None),
-                        link=data.get('link', None),
-                        topic_name=data.get('topic', None),
-                        description=data.get('description', None),
-                        update_mask=update_mask)
+    update_mask = request.args.get('update_mask', 'name,link,topic,description')
+    update_fields = update_mask.split(',')
+    name = data.get('name', None) if 'name' in update_fields else None
+    link = data.get('link', None) if 'link' in update_fields else None
+    topic = data.get('topic', None) if 'topic' in update_fields else None
+    description = data.get('description', None) if 'description' in update_fields else None
+   
+    topic_id = None
+    if topic:
+        topic_id = topic.fetch_single(name=topic).id
+        if not bookmark_topic:
+            topic.create(topic)
+            topic_id = topic.fetch_single(name=topic).id
+    bookmark.update(id, name=name, link=link, topic_id=topic_id,
+                    description=description)
     return ''
 
-@bp.get('/bookmarks/<id>/tags')
-def bookmark_tags(id):
-    return [t.to_json() for t in core.get_tags_for_bookmark(id)]
 
-@bp.post('/bookmarks/<id>/tags')
-def bookmark_tags_post(id):
-    data = request.json
-    tag_bookmark_id = data['tag_bookmark_id']
-    if not tag_bookmark_id:
-        abort(400)
-    core.tag_bookmark(id, tag_bookmark_id)
+@bp.delete('/bookmarks/<id>')
+def bookmarks_delete(id):
+    bookmark.delete(id)
     return ''
-
-@bp.get('/bookmarks/<id>/resources')
-def bookmark_resources(id):
-    topic = request.args.get('topic', None)
-    return [b.to_json() for b in core.get_tagged_with_id(id, topic=topic)]
