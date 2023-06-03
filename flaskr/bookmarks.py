@@ -8,6 +8,8 @@ bp = Blueprint('bookmarks', __name__, url_prefix='/')
 @bp.after_request
 def after_request(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'X-PINGOTHER, Content-Type'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS,DELETE,PATCH'
     return response
 
 
@@ -22,7 +24,7 @@ def bookmarks_post():
                     bookmark_topic.id,
                     data['link'],
                     data['description'])
-    return ''
+    return data
 
 
 @bp.get('/bookmarks/<id>')
