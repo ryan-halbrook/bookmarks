@@ -1,22 +1,42 @@
--- Bookmark database supporting topics and tagging associations.
+-- Bookmark database supporting types and tagging associations.
 
-CREATE TABLE topics (
+CREATE TABLE users (
     id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL
+);
+
+CREATE TABLE collections (
+    id INTEGER PRIMARY KEY,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    name TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE types (
+    id INTEGER PRIMARY KEY,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    name TEXT NOT NULL,
+    collection_id INTEGER NOT NULL,
+    FOREIGN KEY (collection_id) REFERENCES collections (id)
 );
 
 CREATE TABLE bookmarks (
     id INTEGER PRIMARY KEY,
-    topic_id INTEGER NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    type_id INTEGER NOT NULL,
     name TEXT NOT NULL,
     link TEXT,
     description TEXT,
-    UNIQUE (topic_id, name),
-    FOREIGN KEY (topic_id) REFERENCES topics (id)
+    UNIQUE (type_id, name),
+    FOREIGN KEY (type_id) REFERENCES types (id)
 );
 
 CREATE TABLE tags (
     id INTEGER PRIMARY KEY,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     bookmark_id INTEGER NOT NULL,
     tag_bookmark_id INTEGER NOT NULL,
     UNIQUE (bookmark_id, tag_bookmark_id),
@@ -24,10 +44,3 @@ CREATE TABLE tags (
     FOREIGN KEY (tag_bookmark_id) REFERENCES bookmarks (id),
     CHECK (bookmark_id != tag_bookmark_id)
 );
-
---Join bookmarks x tags
---bookmark.id | bookmark.topic | bookmark.name | .. | tag.id | tag.bookmark_id | tag.tag_bookmark_id
---group by bookmark.topic
---WHERE bookmark.id == tag.bookmark.id AND tag.tag_bookmark_id == TAG_BOOKMARK_ID
-
--- SELECT b.name, t.tag_bookmark_id, b.topic_id FROM tags as t, bookmarks as b WHERE t.bookmark_id==b.id AND t.tag_bookmark_id==1 AND b.topic_id==2;
