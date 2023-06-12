@@ -1,8 +1,8 @@
 import flaskr.db as db
 from flask import Blueprint, request
-import flaskr.core.topic as topic
+import flaskr.core.bookmark_type as bookmark_type
 
-bp = Blueprint('topics', __name__, url_prefix='/')
+bp = Blueprint('types', __name__, url_prefix='/')
 
 @bp.after_request
 def after_request(response):
@@ -12,22 +12,22 @@ def after_request(response):
     return response
 
 
-@bp.get('/topics')
-def topics():
-    return [t.to_json() for t in topic.fetch()]
+@bp.get('/types')
+def types_get():
+    return [t.to_json() for t in bookmark_type.fetch()]
 
 
-@bp.patch('/topics/<id>')
-def topics_update(id):
+@bp.patch('/types/<id>')
+def types_update(id):
     data = request.json
     name = data.get('name', None)
     if not name:
         return 'Failed'
-    topic.update(id, name=name)
+    bookmark_type.update(id, name=name)
     return id
 
 
-@bp.delete('/topics/<id>')
-def topics_delete(id):
-    topic.delete(id)
+@bp.delete('/types/<id>')
+def types_delete(id):
+    bookmark_type.delete(id)
     return id

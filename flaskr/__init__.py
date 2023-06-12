@@ -33,8 +33,8 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
-    from . import topics
-    app.register_blueprint(topics.bp)
+    from . import bookmark_types
+    app.register_blueprint(bookmark_types.bp)
     
     from . import bookmarks
     app.register_blueprint(bookmarks.bp)

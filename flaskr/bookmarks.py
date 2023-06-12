@@ -1,6 +1,6 @@
 from flask import Blueprint, request, Response, abort
 import flaskr.core.bookmark as bookmark
-import flaskr.core.topic as topic
+import flaskr.core.bookmark_type as bookmark_type
 
 bp = Blueprint('bookmarks', __name__, url_prefix='/')
 
@@ -16,12 +16,13 @@ def after_request(response):
 @bp.post('/bookmarks')
 def bookmarks_post():
     data = request.json
-    bookmark_topic = topic.fetch_single(name=data['topic'])
-    if not bookmark_topic:
-        topic.create(data['topic'])
-        bookmark_topic = topic.fetch_single(name=data['topic'])
+    type_name = data['type']
+    btype = bookmark_type.fetch_single(name=type_name)
+    if not btype:
+        bookmark_type.create(data['type'])
+        btype = bookmark_type.fetch_single(name=type_name)
     bookmark.create(data['name'],
-                    bookmark_topic.id,
+                    btype.id,
                     data['link'],
                     data['description'])
     return data
@@ -34,27 +35,27 @@ def bookmarks_get(id):
 
 @bp.get('/bookmarks')
 def bookmarks_get_collection():
-    topic = request.args.get('topic', None)
-    return [b.to_json() for b in bookmark.fetch(topic_name=topic)]
+    type_name = request.args.get('type', None)
+    return [b.to_json() for b in bookmark.fetch(type_name=type_name)]
 
 
 @bp.patch('/bookmarks/<id>')
 def bookmarks_patch(id):
     data = request.json
-    update_mask = request.args.get('update_mask', 'name,link,topic,description')
+    update_mask = request.args.get('update_mask', 'name,link,type,description')
     update_fields = update_mask.split(',')
     name = data.get('name', None) if 'name' in update_fields else None
     link = data.get('link', None) if 'link' in update_fields else None
-    topic = data.get('topic', None) if 'topic' in update_fields else None
+    type_name = data.get('type', None) if 'type' in update_fields else None
     description = data.get('description', None) if 'description' in update_fields else None
    
-    topic_id = None
-    if topic:
-        topic_id = topic.fetch_single(name=topic).id
-        if not bookmark_topic:
-            topic.create(topic)
-            topic_id = topic.fetch_single(name=topic).id
-    bookmark.update(id, name=name, link=link, topic_id=topic_id,
+    type_id = None
+    if type_name:
+        type_id = bookmark_type.fetch_single(name=type_name).id
+        if not type_id:
+            bookmark_type.create(type_name)
+            type_id = bookmark_type.fetch_single(name=type_name).id
+    bookmark.update(id, name=name, link=link, type_id=type_id,
                     description=description)
     return ''
 

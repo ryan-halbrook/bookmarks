@@ -1,36 +1,36 @@
 import flaskr.db as db
-from model.types import Bookmark, Topic
+from model.types import Bookmark, Type
 import flaskr.core.utils as utils
-import flaskr.core.topic as topic
 
 
-def create(name, topic_id, link, description):
+def create(name, type_id, link, description):
     db.get_db().execute(
-        'INSERT INTO bookmarks (name, topic_id, link, description)'
+        'INSERT INTO bookmarks (name, type_id, link, description)'
         ' VALUES (?, ?, ?, ?)',
-        (name, topic_id, link, description)
+        (name, type_id, link, description)
     )
     db.get_db().commit()
 
 
-def fetch_single(id=None, name=None, topic_id=None, topic_name=None):
-    bookmarks = fetch(id=id, name=name, topic_id=topic_id,
-                      topic_name=topic_name)
+def fetch_single(id=None, name=None, type_id=None, type_name=None):
+    bookmarks = fetch(id=id, name=name, type_id=type_id,
+                      type_name=type_name)
     return bookmarks[0] if bookmarks else None
 
 
-def fetch(id=None, name=None, topic_id=None, topic_name=None):
+def fetch(id=None, name=None, type_id=None, type_name=None):
     params = { 
               'bookmark_id': id,
               'bookmark_name': name,
-              'topic_id': topic_id,
-              'topic_name': topic_name,
+              'type_id': type_id,
+              'type_name': type_name,
               }
 
-    query = """SELECT b.id as bookmark_id, b.name as bookmark_name,
-               b.link as bookmark_link, t.name as topic_name,
-               t.id as topic_id, b.description as bookmark_description
-               FROM bookmarks as b, topics as t where b.topic_id = t.id """
+    query = """SELECT b.id as bookmark_id, b.created as created,
+               b.name as bookmark_name, b.link as bookmark_link,
+               t.name as type_name, t.id as type_id,
+               b.description as bookmark_description
+               FROM bookmarks as b, types as t where b.type_id = t.id """
     if any(params.values()):
         query += " AND "
     query, values = utils.build_sql_where(query, params=params, add_where=False)
@@ -39,10 +39,11 @@ def fetch(id=None, name=None, topic_id=None, topic_name=None):
     def bookmark(row):
         return Bookmark(
                 row['bookmark_id'],
+                row['created'],
                 row['bookmark_name'],
-                Topic(
-                    row['topic_id'],
-                    row['topic_name']
+                Type(
+                    row['type_id'],
+                    row['type_name']
                     ),
                 row['bookmark_link'],
                 row['bookmark_description']
@@ -50,8 +51,8 @@ def fetch(id=None, name=None, topic_id=None, topic_name=None):
     return [bookmark(row) for row in fetchResult]
 
 
-def update(id, name=None, link=None, topic_id=None, description=None):
-    if not any([name, link, topic_id, description]):
+def update(id, name=None, link=None, type_id=None, description=None):
+    if not any([name, link, type_id, description]):
         raise
 
     sets = {}
@@ -59,8 +60,8 @@ def update(id, name=None, link=None, topic_id=None, description=None):
         sets['name'] = name
     if link:
         sets['link'] = link
-    if topic_id:
-        sets['topic_id'] = topic_id
+    if type_id:
+        sets['type_id'] = type_id
     if description:
         sets['description'] = description
 

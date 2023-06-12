@@ -7,16 +7,16 @@ import flaskr.core.bookmark as bookmark
 def test_create(app):
     with app.app_context():
         name = 'Test Create Bookmark'
-        topic_id = 1
+        type_id = 1
         link = 'http://example.com/create'
         description = 'lorem ipsum...'
 
-        bookmark.create(name, topic_id, link, description);
+        bookmark.create(name, type_id, link, description);
         bookmarks = get_db().execute(
                 'SELECT b.id FROM bookmarks as b WHERE'
-                ' b.name = ? AND b.topic_id = ? AND b.link = ?'
+                ' b.name = ? AND b.type_id = ? AND b.link = ?'
                 ' AND b.description = ?'
-                , (name, topic_id, link, description)).fetchall()
+                , (name, type_id, link, description)).fetchall()
         assert len(bookmarks) == 1
 
 
@@ -33,7 +33,7 @@ def test_fetch_id(app):
 def test_fetch_name(app):
     with app.app_context():
         result = bookmark.fetch_single(name='test bookmark',
-                                        topic_name='test topic')
+                                        type_name='test type')
         assert result.name == 'test bookmark'
 
 
@@ -45,8 +45,8 @@ def test_update(app):
         assert bookmark.fetch_single(20).link == 'updated link'
         bookmark.update(20, description='updated desc')
         assert bookmark.fetch_single(20).description == 'updated desc'
-        #bookmark.update(20, topic_id=30)
-        #assert bookmark.fetch_single(20).topic.id == 30
+        #bookmark.update(20, type_id=30)
+        #assert bookmark.fetch_single(20).type.id == 30
         
 
 def test_delete(app):

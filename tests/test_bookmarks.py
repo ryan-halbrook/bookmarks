@@ -5,7 +5,7 @@ import json
 def test_create(client, app):
     newBookmark = {
             'name': 'Test Bookmark',
-            'topic': 'Test Topic',
+            'type': 'Test Type',
             'link': 'http://example.com',
             'description': 'lorem ipsum...'
             }
@@ -25,12 +25,13 @@ def test_get(client, app):
     assert 'another test bookmark' == response.json[1]['name']
     bookmark = response.json[0]
     assert 'id' in bookmark
+    assert 'created' in bookmark
     assert 'name' in bookmark
     assert 'link' in bookmark
     assert 'description' in bookmark
-    topic = bookmark['topic']
-    assert 'id' in topic
-    assert 'name' in topic
+    bookmark_type = bookmark['type']
+    assert 'id' in bookmark_type
+    assert 'name' in bookmark_type
 
 
 def test_get_by_id(client, app):
