@@ -5,7 +5,13 @@ def test_get(client):
     response = client.get('/bookmarks/20/tags')
     assert response.status_code == 200
     assert len(response.json) == 1
-    assert response.json[0]['name'] == 'another test bookmark'
+    assert response.json[0]['bookmark']['name'] == 'another test bookmark'
+
+
+def test_delete(client, app):
+    response = client.delete('/bookmarks/20/tags/40')
+    assert response.status_code == 200
+    assert len(response.json) == 0
 
 
 def test_post(client, app):

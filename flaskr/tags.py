@@ -8,6 +8,8 @@ bp = Blueprint('tags', __name__, url_prefix='/bookmarks')
 @bp.after_request
 def after_request(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'X-PINGOTHER, Content-Type'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS,DELETE,PATCH'
     return response
 
 
@@ -24,3 +26,8 @@ def bookmark_tags_post(id):
 @bp.get('/<id>/tags')
 def bookmark_tags(id):
     return [t.to_json() for t in tag.fetch_tags(id)]
+
+@bp.delete('/<id>/tags/<tag_id>')
+def bookmark_tags_delete(id, tag_id):
+    tag.delete(tag_id)
+    return []

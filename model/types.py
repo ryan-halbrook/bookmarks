@@ -58,17 +58,12 @@ class Bookmark:
 
 
 class Tag:
-    def __init__(self, id: int, created: datetime, bookmark: Bookmark,
-                 tag_bookmark: Bookmark):
+    def __init__(self, id: int, bookmark: Bookmark):
         self.id = id
-        self.created = created
         self.bookmark = bookmark
-        self.tag_bookmark = tag_bookmark
     
     def to_json(self):
         return {
-            'id': self.id,
-            'created': self.created,
+            'tag_id': self.id,
             'bookmark': self.bookmark.to_json(),
-            'tag': self.tag_bookmark.to_json(),
         }
