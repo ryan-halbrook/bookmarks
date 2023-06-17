@@ -2,11 +2,20 @@ import flaskr.db as db
 from model.types import Bookmark, Tag, Type
 from . import bookmark as core_bookmark
 
-# Tag the bookmark with ID = bookmark_id
-# with the bookmark with ID = tag_bookmark_id
+
+def tag_exists(id1, id2):
+    query = """SELECT id FROM tags WHERE (
+               (bookmark_id = ? AND tag_bookmark_id = ?) AND
+               (bookmark_id = ? AND tag_bookmark_id = ?))"""
+    fetch = db.get_db().execute(query, (id1, id2, id2, id1,)).fetchone()
+    return bool(fetch)
+
+
 def create(bookmark_id, tag_bookmark_id):
     if bookmark_id == tag_bookmark_id:
         raise Exception()
+    if tag_exists(bookmark_id, tag_bookmark_id):
+        return
     bookmark = core_bookmark.fetch_single(bookmark_id)
     tag_bookmark = core_bookmark.fetch_single(tag_bookmark_id)
     if not (bookmark and tag_bookmark):
@@ -26,6 +35,7 @@ def delete(id):
         (id,)
     )
     db.get_db().commit()
+
 
 # bookmark_id, tag_bookmark_id
 def fetch_tags(bookmark_id, type_name=None):
