@@ -12,9 +12,9 @@ def after_request(response):
     return response
 
 
-@bp.get('/types')
-def types_get():
-    return [t.to_json() for t in bookmark_type.fetch()]
+@bp.get('/collections/<id>/types')
+def types_get(id):
+    return [t.to_json() for t in bookmark_type.fetch(collection_id=id)]
 
 
 @bp.patch('/types/<id>')

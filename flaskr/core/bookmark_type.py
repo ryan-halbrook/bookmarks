@@ -12,8 +12,11 @@ def create(name, collection_id=1):
     db.get_db().commit()
 
 
-def fetch(id=None, name=None):
-    params = { 'id': id, 'name': name }
+def fetch(id=None, collection_id=None, name=None):
+    params = {
+                'id': id, 'name': name,
+                'collection_id': collection_id,
+             }
     query, values = utils.build_sql_where(
             'SELECT id, created, name, collection_id FROM types', params=params)
     fetchResult = db.get_db().execute(query, values).fetchall()

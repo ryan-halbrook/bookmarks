@@ -39,6 +39,9 @@ def create_app(test_config=None):
     from . import bookmarks
     app.register_blueprint(bookmarks.bp)
     
+    from . import collections
+    app.register_blueprint(collections.bp)
+
     from . import tags
     app.register_blueprint(tags.bp)
 

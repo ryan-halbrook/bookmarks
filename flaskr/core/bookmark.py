@@ -3,7 +3,7 @@ from model.types import Bookmark, Type
 import flaskr.core.utils as utils
 
 
-def create(name, type_id, link, description):
+def create(collection_id, name, type_id, link, description):
     db.get_db().execute(
         'INSERT INTO bookmarks (name, type_id, link, description)'
         ' VALUES (?, ?, ?, ?)',
@@ -18,17 +18,19 @@ def fetch_single(id=None, name=None, type_id=None, type_name=None):
     return bookmarks[0] if bookmarks else None
 
 
-def fetch(id=None, name=None, type_id=None, type_name=None):
+def fetch(id=None, collection_id=None, name=None, type_id=None, type_name=None):
     params = { 
               'bookmark_id': id,
               'bookmark_name': name,
               'type_id': type_id,
               'type_name': type_name,
+              'collection_id': collection_id,
               }
 
     query = """SELECT b.id as bookmark_id, b.created as created,
                b.name as bookmark_name, b.link as bookmark_link,
                t.name as type_name, t.id as type_id,
+               t.collection_id as collection_id,
                b.description as bookmark_description
                FROM bookmarks as b, types as t where b.type_id = t.id """
     if any(params.values()):

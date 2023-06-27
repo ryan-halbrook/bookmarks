@@ -13,34 +13,35 @@ def after_request(response):
     return response
 
 
-@bp.post('/bookmarks')
-def bookmarks_post():
+@bp.post('/collections/<cid>/bookmarks')
+def bookmarks_post(cid):
     data = request.json
     type_name = data['type']
     btype = bookmark_type.fetch_single(name=type_name)
     if not btype:
         bookmark_type.create(data['type'])
         btype = bookmark_type.fetch_single(name=type_name)
-    bookmark.create(data['name'],
+    bookmark.create(cid,
+                    data['name'],
                     btype.id,
                     data['link'],
                     data['description'])
     return data
 
 
-@bp.get('/bookmarks/<id>')
-def bookmarks_get(id):
-    return bookmark.fetch_single(id).to_json()
+@bp.get('/collections/<cid>/bookmarks/<bid>')
+def bookmarks_get(cid, bid):
+    return bookmark.fetch_single(bid, collection_id=cid).to_json()
 
 
-@bp.get('/bookmarks')
-def bookmarks_get_collection():
+@bp.get('/collections/<id>/bookmarks')
+def bookmarks_get_collection(id):
     type_name = request.args.get('type', None)
-    return [b.to_json() for b in bookmark.fetch(type_name=type_name)]
+    return [b.to_json() for b in bookmark.fetch(collection_id=id, type_name=type_name)]
 
 
-@bp.patch('/bookmarks/<id>')
-def bookmarks_patch(id):
+@bp.patch('/collections/<cid>/bookmarks/<bid>')
+def bookmarks_patch(cid, bid):
     data = request.json
     update_mask = request.args.get('update_mask', 'name,link,type,description')
     update_fields = update_mask.split(',')
@@ -55,7 +56,7 @@ def bookmarks_patch(id):
         if not type_id:
             bookmark_type.create(type_name)
             type_id = bookmark_type.fetch_single(name=type_name).id
-    bookmark.update(id, name=name, link=link, type_id=type_id,
+    bookmark.update(bid, name=name, link=link, type_id=type_id,
                     description=description)
     return ''
 
