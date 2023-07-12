@@ -12,8 +12,8 @@ def create(collection_id, name, type_id, link, description):
     db.get_db().commit()
 
 
-def fetch_single(id=None, name=None, type_id=None, type_name=None):
-    bookmarks = fetch(id=id, name=name, type_id=type_id,
+def fetch_single(id=None, collection_id=None, name=None, type_id=None, type_name=None):
+    bookmarks = fetch(id=id, collection_id=collection_id, name=name, type_id=type_id,
                       type_name=type_name)
     return bookmarks[0] if bookmarks else None
 
@@ -84,7 +84,7 @@ def update(id, name=None, link=None, type_id=None, description=None):
     db.get_db().commit()
 
 
-def delete(id):
+def delete(id, collection_id):
     db.get_db().execute(
         'DELETE FROM bookmarks WHERE id = ?',
         (id,)

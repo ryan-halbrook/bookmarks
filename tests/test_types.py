@@ -2,7 +2,7 @@ from flaskr.db import get_db
 
 
 def test_get(client):
-    response = client.get('/types')
+    response = client.get('/collections/1/types')
     assert response.status_code == 200
     assert len(response.json) == 1
     assert response.json[0]['name'] == 'test type'

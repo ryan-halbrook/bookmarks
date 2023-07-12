@@ -34,10 +34,10 @@ def bookmarks_get(cid, bid):
     return bookmark.fetch_single(bid, collection_id=cid).to_json()
 
 
-@bp.get('/collections/<id>/bookmarks')
-def bookmarks_get_collection(id):
+@bp.get('/collections/<cid>/bookmarks')
+def bookmarks_get_collection(cid):
     type_name = request.args.get('type', None)
-    return [b.to_json() for b in bookmark.fetch(collection_id=id, type_name=type_name)]
+    return [b.to_json() for b in bookmark.fetch(collection_id=cid, type_name=type_name)]
 
 
 @bp.patch('/collections/<cid>/bookmarks/<bid>')
@@ -61,7 +61,7 @@ def bookmarks_patch(cid, bid):
     return ''
 
 
-@bp.delete('/bookmarks/<id>')
-def bookmarks_delete(id):
-    bookmark.delete(id)
+@bp.delete('/collections/<cid>/bookmarks/<bid>')
+def bookmarks_delete(cid, bid):
+    bookmark.delete(bid, collection_id=cid)
     return ''

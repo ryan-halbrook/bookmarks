@@ -11,7 +11,7 @@ def test_create(app):
         link = 'http://example.com/create'
         description = 'lorem ipsum...'
 
-        bookmark.create(name, type_id, link, description);
+        bookmark.create(1, name, type_id, link, description);
         bookmarks = get_db().execute(
                 'SELECT b.id FROM bookmarks as b WHERE'
                 ' b.name = ? AND b.type_id = ? AND b.link = ?'
@@ -51,7 +51,7 @@ def test_update(app):
 
 def test_delete(app):
     with app.app_context():
-        bookmark.delete(20)
+        bookmark.delete(20, 1)
         assert not get_db().execute(
                 'SELECT id FROM bookmarks WHERE id = 20'
                 ).fetchone()
