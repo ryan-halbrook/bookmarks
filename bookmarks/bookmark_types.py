@@ -1,6 +1,6 @@
-import flaskr.db as db
+import bookmarks.db as db
 from flask import Blueprint, request
-import flaskr.core.bookmark_type as bookmark_type
+import bookmarks.core.bookmark_type as bookmark_type
 
 bp = Blueprint('types', __name__, url_prefix='/')
 

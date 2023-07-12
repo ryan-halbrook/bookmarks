@@ -1,5 +1,5 @@
 import pytest
-from flaskr.db import get_db
+from bookmarks.db import get_db
 import json
 
 def test_create(client, app):

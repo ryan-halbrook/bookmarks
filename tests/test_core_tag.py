@@ -1,5 +1,5 @@
-import flaskr.core.tag as tag
-from flaskr.db import get_db
+import bookmarks.core.tag as tag
+from bookmarks.db import get_db
 
 
 def test_create(app):

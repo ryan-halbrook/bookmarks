@@ -1,6 +1,6 @@
 from flask import Blueprint, request, Response, abort
-import flaskr.core.bookmark as bookmark
-import flaskr.core.bookmark_type as bookmark_type
+import bookmarks.core.bookmark as bookmark
+import bookmarks.core.bookmark_type as bookmark_type
 
 bp = Blueprint('bookmarks', __name__, url_prefix='/')
 

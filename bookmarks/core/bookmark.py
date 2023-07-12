@@ -1,6 +1,6 @@
-import flaskr.db as db
+import bookmarks.db as db
 from model.types import Bookmark, Type
-import flaskr.core.utils as utils
+import bookmarks.core.utils as utils
 
 
 def create(collection_id, name, type_id, link, description):

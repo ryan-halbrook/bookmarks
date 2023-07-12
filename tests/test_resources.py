@@ -1,4 +1,4 @@
-from flaskr.db import get_db
+from bookmarks.db import get_db
 
 def test_get(client):
     response = client.get('/bookmarks/30/resources')

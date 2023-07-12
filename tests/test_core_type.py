@@ -1,5 +1,5 @@
-import flaskr.core.bookmark_type as bookmark_type
-from flaskr.db import get_db
+import bookmarks.core.bookmark_type as bookmark_type
+from bookmarks.db import get_db
 
 def test_create(app):
     with app.app_context():

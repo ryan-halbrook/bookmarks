@@ -1,4 +1,4 @@
-import flaskr.db as db
+import bookmarks.db as db
 from model.types import Collection
 
 

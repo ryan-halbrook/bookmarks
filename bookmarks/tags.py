@@ -1,6 +1,6 @@
-import flaskr.db as db
+import bookmarks.db as db
 from flask import Blueprint, request, abort
-import flaskr.core.tag as tag
+import bookmarks.core.tag as tag
 
 bp = Blueprint('tags', __name__, url_prefix='/bookmarks')
 

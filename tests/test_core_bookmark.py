@@ -1,7 +1,7 @@
 import pytest
 
-from flaskr.db import get_db
-import flaskr.core.bookmark as bookmark
+from bookmarks.db import get_db
+import bookmarks.core.bookmark as bookmark
 
 
 def test_create(app):

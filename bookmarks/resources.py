@@ -1,5 +1,5 @@
 from flask import Blueprint, request, Response, abort
-import flaskr.core.tag as tag
+import bookmarks.core.tag as tag
 
 bp = Blueprint('bookmarks', __name__, url_prefix='/bookmarks')
 

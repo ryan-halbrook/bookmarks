@@ -1,4 +1,4 @@
-import flaskr.db as db
+import bookmarks.db as db
 from model.types import Bookmark, Tag, Type
 from . import bookmark as core_bookmark
 

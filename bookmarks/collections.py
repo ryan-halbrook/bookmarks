@@ -1,5 +1,5 @@
 from flask import Blueprint, request, Response, abort
-import flaskr.core.collection as collection
+import bookmarks.core.collection as collection
 
 bp = Blueprint('collections', __name__, url_prefix='/')
 
