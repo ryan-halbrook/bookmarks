@@ -6,6 +6,10 @@ INSERT INTO collections (id, created, name, user_id)
 VALUES
   (1, '2023-01-01 00:00:00', 'test collection', 1);
 
+INSERT INTO collections (id, created, name, user_id)
+VALUES
+  (2, '2023-01-01 00:00:00', 'another collection', 1);
+
 INSERT INTO types (id, created, name, collection_id)
 VALUES
   (10, '2023-01-01 00:00:00', 'test type', 1);
