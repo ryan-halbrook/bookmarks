@@ -4,8 +4,23 @@ import json
 
 def test_create(client, app):
     newBookmark = {
-            'name': 'Test Bookmark',
-            'type': 'Test Type',
+            'name': 'new bookmark',
+            'type': 'test type',
+            'link': 'http://example.com',
+            'description': 'lorem ipsum...'
+            }
+    client.post('/collections/1/bookmarks', json=newBookmark)
+
+    with app.app_context():
+        db = get_db()
+        count = db.execute('SELECT COUNT(id) FROM bookmarks').fetchone()[0]
+        assert count == 4
+
+
+def test_create_new_type(client, app):
+    newBookmark = {
+            'name': 'new bookmark',
+            'type': 'new type',
             'link': 'http://example.com',
             'description': 'lorem ipsum...'
             }
@@ -61,3 +76,16 @@ def test_update(client, app):
         result = db.execute('SELECT name FROM bookmarks WHERE id=20').fetchone()
         assert result['name'] == 'New Name'
 
+
+def test_update_type(client, app):
+    existing_type = 'another_type'
+    new_type = 'new type'
+
+    for type_name in [existing_type, new_type]:
+        client.patch('/collections/1/bookmarks/20', json={
+             'type': type_name})
+
+        with app.app_context():
+            db = get_db()
+            result = db.execute('SELECT types.name as type FROM bookmarks, types WHERE bookmarks.id=20 AND bookmarks.type_id=types.id').fetchone()
+            assert result['type'] == type_name

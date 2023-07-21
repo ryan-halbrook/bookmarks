@@ -4,7 +4,7 @@ from bookmarks.db import get_db
 def test_get(client):
     response = client.get('/collections/1/types')
     assert response.status_code == 200
-    assert len(response.json) == 1
+    assert len(response.json) == 2
     assert response.json[0]['name'] == 'test type'
 
 
@@ -32,4 +32,4 @@ def test_delete(client, app):
 
     with app.app_context():
         count = get_db().execute('SELECT COUNT(id) FROM types').fetchone()[0]
-        assert count == 0
+        assert count == 1

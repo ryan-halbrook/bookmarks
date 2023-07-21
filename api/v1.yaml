@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info:
+  title: Bookmarks API
+  version: 0.0.1
+paths:
+  /collections:
+    get:
+      summary: Get collections
+      description: Retrieves metadata for all bookmark collections
+  /collections/{collection-id}/bookmarks/{bookmark-id}:
+    get:
+      summary: Get bookmarks in a collection
+      description: Retrieves bookmarks in the collection
+      parameters:
+      - name: collection-id
+        in: path
+        required: true
+      - name: bookmark-id
+        in: path
+        required: false
+  /collections/{collection-id}/bookmarks:
+    post:
+      summary: Add a bookmark to a collection
+      parameters:
+      - name: collection-id
+        in: path
+        required: true

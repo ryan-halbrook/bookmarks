@@ -50,12 +50,16 @@ def bookmarks_patch(cid, bid):
     type_name = data.get('type', None) if 'type' in update_fields else None
     description = data.get('description', None) if 'description' in update_fields else None
    
-    type_id = None
+    btype = None
     if type_name:
-        type_id = bookmark_type.fetch_single(name=type_name).id
-        if not type_id:
+        btype = bookmark_type.fetch_single(name=type_name)
+        if not btype:
             bookmark_type.create(type_name)
-            type_id = bookmark_type.fetch_single(name=type_name).id
+            btype = bookmark_type.fetch_single(name=type_name)
+        if not btype:
+            abort(500)
+    type_id = btype.id if btype else None
+
     bookmark.update(bid, name=name, link=link, type_id=type_id,
                     description=description)
     return ''

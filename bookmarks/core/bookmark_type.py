@@ -14,7 +14,8 @@ def create(name, collection_id=1):
 
 def fetch(id=None, collection_id=None, name=None):
     params = {
-                'id': id, 'name': name,
+                'id': id,
+                'name': name,
                 'collection_id': collection_id,
              }
     query, values = utils.build_sql_where(

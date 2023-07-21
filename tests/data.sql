@@ -14,6 +14,10 @@ INSERT INTO types (id, created, name, collection_id)
 VALUES
   (10, '2023-01-01 00:00:00', 'test type', 1);
 
+INSERT INTO types (id, created, name, collection_id)
+VALUES
+  (11, '2023-01-01 00:00:00', 'another type', 1);
+
 -- bookmarks
 INSERT INTO bookmarks (id, created, type_id, name, link, description)
 VALUES
