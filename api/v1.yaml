@@ -6,25 +6,65 @@ paths:
   /collections:
     get:
       summary: Get collections
-      description: Retrieves metadata for all bookmark collections
+      description: Get list of bookmark collections
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    created:
+                      type: date
+                    id:
+                      type: integer
+                    name:
+                      type: string
   /collections/{collection-id}/types:
     get:
-      summary: Get types in a collection
+      summary: Get types
       parameters:
       - name: collection-id
         in: path
         required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
   /collections/{collection-id}/bookmarks/{bookmark-id}:
     get:
-      summary: Get bookmarks in a collection
-      description: Retrieves bookmarks in the collection
+      summary: Get a bookmark
+      description: Get a bookmark in the specified collection
       parameters:
       - name: collection-id
         in: path
         required: true
+        schema:
+          type: integer
       - name: bookmark-id
         in: path
-        required: false
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bookmark'
     patch:
       summary: Update a bookmark
       description: Change something about a bookmark, for example name or URL
@@ -32,40 +72,118 @@ paths:
       - name: collection-id
         in: path
         required: true
+        schema:
+          type: integer
       - name: bookmark-id
         in: path
         required: true
+        schema:
+          type: integer
+      - name: update_mask
+        in: query
+        required: false
+        description: Comma-separated list of fields to update (i.e. 'name,link')
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                link:
+                  type: string
+                type:
+                  type: string
+                description:
+                  type: string
     delete:
       summary: Delete a bookmark
       parameters:
       - name: collection-id
         in: path
         required: true
+        schema:
+          type: integer
       - name: bookmark-id
         in: path
         required: true
+        schema:
+          type: integer
   /collections/{collection-id}/bookmarks:
-    post:
-      summary: Add a bookmark to a collection
+    get:
+      summary: Get bookmarks
+      description: Get bookmarks in the specified collection
       parameters:
       - name: collection-id
         in: path
         required: true
+        schema:
+          type: integer
+      - name: type
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/bookmark'
+    post:
+      summary: Add a bookmark
+      parameters:
+      - name: collection-id
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                link:
+                  type: string
+                type:
+                  type: string
+                description:
+                  type: string
   /types/{type-id}:
     patch:
-      summary: Change a type
+      summary: Update a type
       description: Change something about a type, for example its name
       parameters:
       - name: type-id
         in: path
         required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
     delete:
-      summary: Delete a type from a collection
+      summary: Delete a type
       description: Deletes all bookmarks of the deleted type
       parameters:
       - name: type-id
         in: path
         required: true
+        schema:
+          type: integer
   /bookmarks/{bookmark-id}/tags:
     get:
       summary: Get tags for a bookmark
@@ -74,21 +192,65 @@ paths:
       - name: bookmark-id
         in: path
         required: true
+        schema:
+          type: integer
     post:
-      summary: Tag a bookmark with another bookmark
-      description: Creates a bidirectional association between the two bookmarks
+      summary: Tag a bookmark
+      description: Tag a bookmark with another bookmark. Creates a bidirectional association between the two bookmarks.
       parameters:
       - name: bookmark-id
         in: path
         required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tag_bookmark_id:
+                  type: integer
+      responses:
+        "200":
+          description: success
+        "400":
+          description: tag_bookmark_id missing from payload
   /bookmarks/{bookmark-id}/tags/{tag-id}:
     delete:
-      summary: Delete a tagging association
-      description: Deletes the bidirectional tag association between the two bookmarks
+      summary: Delete a tag
+      description: Deletes the bidirectional tag association between two bookmarks.
       parameters:
       - name: bookmark-id
         in: path
         required: true
+        schema:
+          type: integer
       - name: tag-id
         in: path
         required: true
+        schema:
+          type: integer
+components:
+  schemas:
+    bookmark:
+      type: object
+      properties:
+        created:
+          type: date
+        description:
+          type: string
+        id:
+          type: integer
+        link:
+          type: string
+        name:
+          type: string
+        type:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+

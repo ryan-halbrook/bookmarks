@@ -45,8 +45,16 @@ def test_update(app):
         assert bookmark.fetch_single(20).link == 'updated link'
         bookmark.update(20, description='updated desc')
         assert bookmark.fetch_single(20).description == 'updated desc'
-        #bookmark.update(20, type_id=30)
-        #assert bookmark.fetch_single(20).type.id == 30
+        bookmark.update(20, type_id=11)
+        assert bookmark.fetch_single(20).bookmark_type.id == 11
+        # Verify receiving no update parameters raises
+        with pytest.raises(Exception):
+            bookmark.update(20)
+        # Update multiple parameters
+        bookmark.update(20, type_id=10, link='new link')
+        updated = bookmark.fetch_single(20)
+        assert updated.bookmark_type.id == 10
+        assert updated.link == 'new link'
         
 
 def test_delete(app):

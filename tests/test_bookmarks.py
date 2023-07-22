@@ -78,7 +78,7 @@ def test_update(client, app):
 
 
 def test_update_type(client, app):
-    existing_type = 'another_type'
+    existing_type = 'another type'
     new_type = 'new type'
 
     for type_name in [existing_type, new_type]:

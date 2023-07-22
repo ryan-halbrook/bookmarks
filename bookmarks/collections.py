@@ -1,4 +1,4 @@
-from flask import Blueprint, request, Response, abort
+from flask import Blueprint, request, Response
 import bookmarks.core.collection as collection
 
 bp = Blueprint('collections', __name__, url_prefix='/')

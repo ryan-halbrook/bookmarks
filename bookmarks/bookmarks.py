@@ -1,4 +1,4 @@
-from flask import Blueprint, request, Response, abort
+from flask import Blueprint, request, Response
 import bookmarks.core.bookmark as bookmark
 import bookmarks.core.bookmark_type as bookmark_type
 
@@ -52,12 +52,10 @@ def bookmarks_patch(cid, bid):
    
     btype = None
     if type_name:
-        btype = bookmark_type.fetch_single(name=type_name)
+        btype = bookmark_type.fetch_single(collection_id=cid, name=type_name)
         if not btype:
             bookmark_type.create(type_name)
-            btype = bookmark_type.fetch_single(name=type_name)
-        if not btype:
-            abort(500)
+            btype = bookmark_type.fetch_single(collection_id=cid, name=type_name)
     type_id = btype.id if btype else None
 
     bookmark.update(bid, name=name, link=link, type_id=type_id,

@@ -5,7 +5,7 @@ from . import bookmark as core_bookmark
 
 def tag_exists(id1, id2):
     query = """SELECT id FROM tags WHERE (
-               (bookmark_id = ? AND tag_bookmark_id = ?) AND
+               (bookmark_id = ? AND tag_bookmark_id = ?) OR
                (bookmark_id = ? AND tag_bookmark_id = ?))"""
     fetch = db.get_db().execute(query, (id1, id2, id2, id1,)).fetchone()
     return bool(fetch)

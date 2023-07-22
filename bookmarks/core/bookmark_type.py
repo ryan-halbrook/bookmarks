@@ -24,8 +24,8 @@ def fetch(id=None, collection_id=None, name=None):
     return [Type(f['id'], f['name']) for f in fetchResult]
 
 
-def fetch_single(id=None, name=None):
-    types = fetch(id=id, name=name)
+def fetch_single(id=None, collection_id=None, name=None):
+    types = fetch(id=id, collection_id=collection_id, name=name)
     return types[0] if types else None
 
 
