@@ -5,12 +5,25 @@ class User:
         self.id = id
         self.email = email
 
+    def to_json(self):
+        return {
+            'id': self.id,
+            'email': self.email
+        }
+
 
 class AuthenticatedUser:
     def __init__(self, id: int, email: str, token: str):
         self.id = id
         self.email = email
         self.token = token
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            'token': self.token
+        }
 
 
 class Collection:
