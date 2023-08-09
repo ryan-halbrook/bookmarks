@@ -1,11 +1,16 @@
 from datetime import datetime
 
-
 class User:
-    def __init__(self, id: int, username: str, password: str):
+    def __init__(self, id: int, email: str):
         self.id = id
-        self.username = username
-        self.password = password
+        self.email = email
+
+
+class AuthenticatedUser:
+    def __init__(self, id: int, email: str, token: str):
+        self.id = id
+        self.email = email
+        self.token = token
 
 
 class Collection:

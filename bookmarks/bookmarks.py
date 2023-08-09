@@ -17,10 +17,10 @@ def after_request(response):
 def bookmarks_post(cid):
     data = request.json
     type_name = data['type']
-    btype = bookmark_type.fetch_single(name=type_name)
+    btype = bookmark_type.fetch_single(name=type_name, collection_id=cid)
     if not btype:
-        bookmark_type.create(data['type'])
-        btype = bookmark_type.fetch_single(name=type_name)
+        bookmark_type.create(data['type'], collection_id=cid)
+        btype = bookmark_type.fetch_single(name=type_name, collection_id=cid)
     bookmark.create(cid,
                     data['name'],
                     btype.id,
@@ -54,7 +54,7 @@ def bookmarks_patch(cid, bid):
     if type_name:
         btype = bookmark_type.fetch_single(collection_id=cid, name=type_name)
         if not btype:
-            bookmark_type.create(type_name)
+            bookmark_type.create(type_name, collection_id=cid)
             btype = bookmark_type.fetch_single(collection_id=cid, name=type_name)
     type_id = btype.id if btype else None
 
