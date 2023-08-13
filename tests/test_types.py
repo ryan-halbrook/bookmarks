@@ -1,8 +1,11 @@
 from bookmarks.db import get_db
 
 
-def test_get(client):
-    response = client.get('/collections/1/types')
+def test_get(client, authenticated_user):
+    response = client.get(
+        '/collections/1/types',
+        headers={'Authorization': 'bearer ' + authenticated_user.token})
+
     assert response.status_code == 200
     assert len(response.json) == 2
     assert response.json[0]['name'] == 'test type'

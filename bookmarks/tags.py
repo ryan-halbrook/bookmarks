@@ -8,7 +8,7 @@ bp = Blueprint('tags', __name__, url_prefix='/bookmarks')
 @bp.after_request
 def after_request(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'X-PINGOTHER, Content-Type'
+    response.headers['Access-Control-Allow-Headers'] = 'X-PINGOTHER, Content-Type, Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS,DELETE,PATCH'
     return response
 

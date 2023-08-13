@@ -1,55 +1,70 @@
 import bookmarks.db as db
 from model.types import Bookmark, Type
 import bookmarks.core.utils as utils
+import sqlite3
 
 
 def create(collection_id, name, type_id, link, description):
-    db.get_db().execute(
-        'INSERT INTO bookmarks (name, type_id, link, description)'
-        ' VALUES (?, ?, ?, ?)',
-        (name, type_id, link, description)
-    )
-    db.get_db().commit()
+    try:
+        cur = db.get_db().cursor()
+        cur.execute(
+            'INSERT INTO bookmarks (name, type_id, link, description)'
+            ' VALUES (?, ?, ?, ?)',
+            (name, type_id, link, description)
+        )
+        bookmark_id = cur.lastrowid
+        db.get_db().commit()
+    except sqlite3.Error:
+        return None
+    return Bookmark(bookmark_id, None, name, None, link, description)
 
 
-def fetch_single(id=None, collection_id=None, name=None, type_id=None, type_name=None):
-    bookmarks = fetch(id=id, collection_id=collection_id, name=name, type_id=type_id,
-                      type_name=type_name)
+def fetch_single(id=None, collection_id=None, name=None, type_id=None,
+        type_name=None):
+    bookmarks = fetch(
+        user_id=None, id=id, collection_id=collection_id, name=name,
+        type_id=type_id, type_name=type_name)
     return bookmarks[0] if bookmarks else None
 
 
-def fetch(id=None, collection_id=None, name=None, type_id=None, type_name=None):
-    params = { 
-              'bookmark_id': id,
-              'bookmark_name': name,
-              'type_id': type_id,
-              'type_name': type_name,
-              'collection_id': collection_id,
-              }
+def fetch(
+        user_id=None, id=None, collection_id=None, name=None, type_id=None,
+        type_name=None):
+    params = {
+        'bookmark_id': id,
+        'bookmark_name': name,
+        'type_id': type_id,
+        'type_name': type_name,
+        'collection_id': collection_id,
+        'user_id': user_id,
+    }
 
     query = """SELECT b.id as bookmark_id, b.created as created,
                b.name as bookmark_name, b.link as bookmark_link,
                t.name as type_name, t.id as type_id,
                t.collection_id as collection_id,
-               b.description as bookmark_description
-               FROM bookmarks as b, types as t where b.type_id = t.id """
+               b.description as bookmark_description,
+               c.user_id as user_id
+               FROM bookmarks as b, types as t, collections as c
+               where b.type_id = t.id AND t.collection_id = c.id"""
     if any(params.values()):
         query += " AND "
-    query, values = utils.build_sql_where(query, params=params, add_where=False)
+    query, values = utils.build_sql_where(
+        query, params=params, add_where=False)
     fetchResult = db.get_db().execute(query, values).fetchall()
 
     def bookmark(row):
         return Bookmark(
-                row['bookmark_id'],
-                row['created'],
-                row['bookmark_name'],
-                Type(
-                    row['type_id'],
-                    row['type_name']
-                    ),
-                row['bookmark_link'],
-                row['bookmark_description']
-                )
+            row['bookmark_id'],
+            row['created'],
+            row['bookmark_name'],
+            Type(
+                row['type_id'],
+                row['type_name']
+            ),
+            row['bookmark_link'],
+            row['bookmark_description']
+        )
     return [bookmark(row) for row in fetchResult]
 
 

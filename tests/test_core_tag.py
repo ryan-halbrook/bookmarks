@@ -19,14 +19,15 @@ def test_create(app):
 
 def test_fetch(app):
     with app.app_context():
-        bookmarks.core.bookmark.create(
-                1, 'a third bookmark', 11, 'http://example.com', '')
-        tag.create(20, 33)
+        bookmark_id = bookmarks.core.bookmark.create(
+                1, 'a third bookmark', 11, 'http://example.com', '').id
+        tag.create(20, bookmark_id)
+
         assert len(tag.fetch_tags(20)) == 2
+
         for type_name in ['test type', 'another type']:
             for bookmark in tag.fetch_tags(20, type_name=type_name):
                 assert bookmark.bookmark.bookmark_type.name == type_name
-
 
 
 def test_delete(app):

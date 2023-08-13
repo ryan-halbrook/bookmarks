@@ -27,16 +27,18 @@ class AuthenticatedUser:
 
 
 class Collection:
-    def __init__(self, id: int, created: datetime, name: str):
+    def __init__(self, id: int, created: datetime, name: str, user_id: int):
         self.id = id
         self.created = created
         self.name = name
+        self.user_id = user_id
 
     def to_json(self):
         return {
             'id': self.id,
             'created': self.created,
             'name': self.name if self.name else 'UNRESOLVED',
+            'user_id': self.user_id,
         }
     
 

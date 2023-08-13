@@ -9,9 +9,9 @@ def add_user(email: str, password: str):
     try:
         cur = db.get_db().cursor()
         cur.execute('INSERT INTO users (username, password) VALUES (?, ?)',
-                            (email, generate_password_hash(password),))
+                    (email, generate_password_hash(password),))
         user_id = cur.lastrowid
-        db.get_db().commit()        
+        db.get_db().commit()
     except sqlite3.Error:
         return None
     return User(user_id, email)
@@ -56,9 +56,16 @@ def update_user(token: str, email: str, password: str):
         cur.execute(
             'UPDATE users SET username = ?, password = ? WHERE id = ?',
             (email, generate_password_hash(password), user.id,))
-        db.get_db().commit()  
+        db.get_db().commit()
     except sqlite3.Error as e:
         print(e)
         return None
-    
+
+    return get_user(email)
+
+
+def get_authenticated_user(authorization):
+    email = auth_jwt_token(authorization)
+    if not email:
+        return None
     return get_user(email)
