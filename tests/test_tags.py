@@ -1,15 +1,17 @@
 from bookmarks.db import get_db
 
 
-def test_get(client):
-    response = client.get('/bookmarks/20/tags')
+def test_get(client, authenticated_user):
+    response = client.get('/bookmarks/20/tags',
+        headers={'Authorization': 'bearear ' + authenticated_user.token})
     assert response.status_code == 200
     assert len(response.json) == 1
     assert response.json[0]['bookmark']['name'] == 'another test bookmark'
 
 
-def test_delete(client):
-    response = client.delete('/bookmarks/20/tags/40')
+def test_delete(client, authenticated_user):
+    response = client.delete('/bookmarks/20/tags/40',
+        headers={'Authorization': 'bearear ' + authenticated_user.token})
     assert response.status_code == 200
     assert len(response.json) == 0
 

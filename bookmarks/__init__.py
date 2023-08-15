@@ -6,7 +6,7 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY='dev',
+        SECRET_KEY='secret',
         DATABASE=os.path.join(app.instance_path, 'bookmarks.sqlite'),
     )
 
@@ -23,11 +23,6 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
-
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
 
     from . import db
     db.init_app(app)
@@ -46,8 +41,5 @@ def create_app(test_config=None):
 
     from . import tags
     app.register_blueprint(tags.bp)
-
-    from . import resources
-    app.register_blueprint(resources.bp, name="resources")
 
     return app

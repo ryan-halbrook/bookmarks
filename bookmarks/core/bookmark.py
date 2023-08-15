@@ -1,5 +1,5 @@
 import bookmarks.db as db
-from model.types import Bookmark, Type
+from model.types import Bookmark, Type, User
 import bookmarks.core.utils as utils
 import sqlite3
 
@@ -20,7 +20,7 @@ def create(collection_id, name, type_id, link, description):
 
 
 def fetch_single(id=None, collection_id=None, name=None, type_id=None,
-        type_name=None):
+                 type_name=None):
     bookmarks = fetch(
         user_id=None, id=id, collection_id=collection_id, name=name,
         type_id=type_id, type_name=type_name)
@@ -105,3 +105,23 @@ def delete(id, collection_id):
         (id,)
     )
     db.get_db().commit()
+
+
+def bookmark_user(bookmark_id):
+    result = db.get_db().execute(
+        'SELECT c.user_id as user_id FROM bookmarks as b, types as t, '
+        'collections as c WHERE b.type_id = t.id AND t.collection_id = c.id '
+        'AND b.id = ?', (bookmark_id,)
+    ).fetchone()
+
+    if not result:
+        return None
+    user_id = result['user_id']
+
+    result = db.get_db().execute(
+        'SELECT id, username FROM users WHERE id = ?',
+        (user_id,)).fetchone()
+    if not result:
+        return None
+
+    return User(result['id'], result['username'])

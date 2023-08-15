@@ -1,6 +1,7 @@
 import bookmarks.db as db
 from model.types import User, AuthenticatedUser
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask import current_app
 import jwt
 import sqlite3
 
@@ -22,14 +23,15 @@ def login(email: str, password: str):
         'SELECT id, password FROM users WHERE username = ?', (email,)).fetchone()
     if not (result and check_password_hash(result['password'], password)):
         return None
-    # TODO: use a real secret
     token = jwt.encode(
-        {'user': email}, 'secret', algorithm='HS256')
+        {'user': email}, current_app.config['SECRET_KEY'], algorithm='HS256')
     return AuthenticatedUser(result['id'], email, token)
 
 
 def auth_jwt_token(token: str):
-    decoded_token = jwt.decode(token, 'secret', algorithms=['HS256'])
+    decoded_token = jwt.decode(
+        token, current_app.config['SECRET_KEY'],
+        algorithms=['HS256'])
     return decoded_token['user']
 
 
