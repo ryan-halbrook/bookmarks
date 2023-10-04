@@ -1,5 +1,5 @@
 import bookmarks.db as db
-from model.types import Bookmark, Type, User
+from bookmarks.types import Bookmark, Type, User
 import bookmarks.core.utils as utils
 import sqlite3
 
@@ -27,6 +27,31 @@ def fetch_single(id=None, collection_id=None, name=None, type_id=None,
     return bookmarks[0] if bookmarks else None
 
 
+def search(collection_id, match_type, match_string):
+    query = """SELECT b.id as bookmark_id, b.created as created,
+            b.name as bookmark_name, b.link as bookmark_link,
+            t.name as type_name, t.id as type_id,
+            b.description as bookmark_description
+            FROM bookmarks as b, types as t
+            where b.type_id = t.id AND t.collection_id = ?"""
+    query += " AND b." + match_type + " LIKE ?"
+    fetchResult = db.get_db().execute(query, (collection_id, '%' + match_string + '%',)).fetchall()
+
+    def bookmark(row):
+        return Bookmark(
+            row['bookmark_id'],
+            row['created'],
+            row['bookmark_name'],
+            Type(
+                row['type_id'],
+                row['type_name']
+            ),
+            row['bookmark_link'],
+            row['bookmark_description']
+        )
+    return [bookmark(row) for row in fetchResult]
+
+
 def fetch(
         user_id=None, id=None, collection_id=None, name=None, type_id=None,
         type_name=None):
@@ -40,13 +65,13 @@ def fetch(
     }
 
     query = """SELECT b.id as bookmark_id, b.created as created,
-               b.name as bookmark_name, b.link as bookmark_link,
-               t.name as type_name, t.id as type_id,
-               t.collection_id as collection_id,
-               b.description as bookmark_description,
-               c.user_id as user_id
-               FROM bookmarks as b, types as t, collections as c
-               where b.type_id = t.id AND t.collection_id = c.id"""
+            b.name as bookmark_name, b.link as bookmark_link,
+            t.name as type_name, t.id as type_id,
+            t.collection_id as collection_id,
+            b.description as bookmark_description,
+            c.user_id as user_id
+            FROM bookmarks as b, types as t, collections as c
+            where b.type_id = t.id AND t.collection_id = c.id"""
     if any(params.values()):
         query += " AND "
     query, values = utils.build_sql_where(
@@ -99,7 +124,7 @@ def update(id, name=None, link=None, type_id=None, description=None):
     db.get_db().commit()
 
 
-def delete(id, collection_id):
+def delete(id):
     db.get_db().execute(
         'DELETE FROM bookmarks WHERE id = ?',
         (id,)
@@ -125,3 +150,11 @@ def bookmark_user(bookmark_id):
         return None
 
     return User(result['id'], result['username'])
+
+# Convenience for authenticating user access
+def bookmark_user_id(bookmark_id):
+    user = bookmark_user(bookmark_id)
+    if user:
+        return user.id
+    else:
+        return None

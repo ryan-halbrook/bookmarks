@@ -59,7 +59,7 @@ def test_update(app):
 
 def test_delete(app):
     with app.app_context():
-        bookmark.delete(20, 1)
+        bookmark.delete(20)
         assert not get_db().execute(
                 'SELECT id FROM bookmarks WHERE id = 20'
                 ).fetchone()

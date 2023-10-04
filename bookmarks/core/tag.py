@@ -1,5 +1,5 @@
 import bookmarks.db as db
-from model.types import Bookmark, Tag, Type
+from bookmarks.types import Bookmark, Tag, Type
 from . import bookmark as core_bookmark
 
 

@@ -1,6 +1,25 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bookmarks"
+version = "0.0.1"
+dependencies = [
+    "Flask",
+    "PyJWT"
+]
+
+[tool.setuptools.packages.find]
+# All the following settings are optional:
+exclude = ["cli"]
+
 [tool.pytest.ini_options]
 testpaths=["tests"]
 
 [tool.coverage.run]
 branch=true
 source=["bookmarks"]
+
+[pylint]
+max-line-length = 85

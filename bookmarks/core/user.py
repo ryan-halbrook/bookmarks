@@ -1,5 +1,5 @@
 import bookmarks.db as db
-from model.types import User, AuthenticatedUser
+from bookmarks.types import User, AuthenticatedUser
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app
 import jwt

@@ -29,7 +29,7 @@ VALUES
 
 INSERT INTO bookmarks (id, created, type_id, name, link, description)
 VALUES
-  (32, '2023-01-01 00:00:00', 10, 'a third bookmark', 'http://myexample.com', 'third bookmark');
+  (32, '2023-01-01 00:00:00', 10, 'a third bookmark', 'http://myexample.com', 'another bookmark');
 
 -- tags
 INSERT INTO tags(id, created, bookmark_id, tag_bookmark_id)

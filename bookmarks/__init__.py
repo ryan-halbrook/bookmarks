@@ -27,19 +27,27 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
-    from . import users
+    from bookmarks.blueprints import users
     app.register_blueprint(users.bp)
 
-    from . import bookmark_types
+    from bookmarks.blueprints import bookmark_types
     app.register_blueprint(bookmark_types.bp)
     
-    from . import bookmarks
+    from bookmarks.blueprints import bookmarks
     app.register_blueprint(bookmarks.bp)
     
-    from . import collections
+    from bookmarks.blueprints import collections
     app.register_blueprint(collections.bp)
 
-    from . import tags
+    from bookmarks.blueprints import tags
     app.register_blueprint(tags.bp)
+
+
+    @app.after_request
+    def after_request(response):
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Headers'] = 'X-PINGOTHER, Content-Type, Authorization'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS,DELETE,PATCH'
+        return response
 
     return app

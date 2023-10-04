@@ -11,7 +11,7 @@ def test_create(client, app, authenticated_user):
     }
     client.post(
         '/collections/1/bookmarks', json=newBookmark,
-        headers={'Authorization': 'bearear ' + authenticated_user.token})
+        headers={'Authorization': 'bearer ' + authenticated_user.token})
 
     with app.app_context():
         db = get_db()
@@ -28,7 +28,7 @@ def test_create_new_type(client, app, authenticated_user):
     }
     client.post(
         '/collections/1/bookmarks', json=newBookmark,
-        headers={'Authorization': 'bearear ' + authenticated_user.token})
+        headers={'Authorization': 'bearer ' + authenticated_user.token})
 
     with app.app_context():
         db = get_db()
@@ -39,7 +39,7 @@ def test_create_new_type(client, app, authenticated_user):
 def test_get(client, app, authenticated_user):
     response = client.get(
         '/collections/1/bookmarks',
-        headers={'Authorization': 'bearear ' + authenticated_user.token})
+        headers={'Authorization': 'bearer ' + authenticated_user.token})
     assert response.status_code == 200
     assert len(response.json) == 3
     assert 'a third bookmark' == response.json[0]['name']
@@ -55,16 +55,33 @@ def test_get(client, app, authenticated_user):
     assert 'name' in bookmark_type
 
 
+def test_get_by_name(client, authenticated_user):
+    response = client.get(
+        '/collections/1/bookmarks?query=test%20bookmark&match=name',
+        headers={'Authorization': 'bearer ' + authenticated_user.token})
+    assert response.status_code == 200
+    print(response.json)
+    assert len(response.json) == 2
+
+
+def test_get_by_description(client, authenticated_user):
+    response = client.get(
+        '/collections/1/bookmarks?query=another&match=description',
+        headers={'Authorization': 'bearer ' + authenticated_user.token})
+    assert response.status_code == 200
+    assert len(response.json) == 2
+
+
 def test_get_by_id(client, app, authenticated_user):
     response = client.get(
         '/collections/1/bookmarks/20',
-        headers={'Authorization': 'bearear ' + authenticated_user.token})
+        headers={'Authorization': 'bearer ' + authenticated_user.token})
     assert response.status_code == 200
     assert 'test bookmark' == response.json['name']
 
     response = client.get(
         '/collections/1/bookmarks/30',
-        headers={'Authorization': 'bearear ' + authenticated_user.token})
+        headers={'Authorization': 'bearer ' + authenticated_user.token})
     assert response.status_code == 200
     assert 'another test bookmark' == response.json['name']
 
@@ -72,7 +89,7 @@ def test_get_by_id(client, app, authenticated_user):
 def test_delete(client, app, authenticated_user):
     client.delete(
         '/collections/1/bookmarks/20',
-        headers={'Authorization': 'bearear ' + authenticated_user.token})
+        headers={'Authorization': 'bearer ' + authenticated_user.token})
 
     with app.app_context():
         db = get_db()
@@ -83,7 +100,7 @@ def test_delete(client, app, authenticated_user):
 def test_update(client, app, authenticated_user):
     client.patch(
         '/collections/1/bookmarks/20', json={'name': 'New Name'},
-        headers={'Authorization': 'bearear ' + authenticated_user.token})
+        headers={'Authorization': 'bearer ' + authenticated_user.token})
 
     with app.app_context():
         db = get_db()
@@ -99,7 +116,7 @@ def test_update_type(client, app, authenticated_user):
     for type_name in [existing_type, new_type]:
         client.patch(
             '/collections/1/bookmarks/20', json={'type': type_name},
-            headers={'Authorization': 'bearear ' + authenticated_user.token})
+            headers={'Authorization': 'bearer ' + authenticated_user.token})
 
         with app.app_context():
             db = get_db()

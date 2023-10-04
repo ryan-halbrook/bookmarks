@@ -1,5 +1,5 @@
 import bookmarks.db as db
-from model.types import Collection
+from bookmarks.types import Collection
 import sqlite3
 
 
@@ -31,6 +31,15 @@ def fetch_single(id):
         result['created'],
         result['name'],
         result['user_id'])
+
+
+# Convenience for authenticating collection access.
+def collection_user_id(collection_id):
+    coll = fetch_single(collection_id)
+    if coll:
+        return coll.user_id
+    else:
+        return None
 
 
 def delete(id):

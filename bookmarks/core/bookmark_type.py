@@ -1,5 +1,5 @@
 from bookmarks import db
-from model.types import Type
+from bookmarks.types import Type
 import bookmarks.core.utils as utils
 
 
