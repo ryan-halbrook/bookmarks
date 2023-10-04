@@ -3,3 +3,9 @@
 .coverage
 instance/
 .venv/
+
+__pycache__/
+*.egg
+build/
+dist/
+*.egg-info
