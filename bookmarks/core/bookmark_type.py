@@ -19,9 +19,10 @@ def fetch(id=None, collection_id=None, name=None):
                 'collection_id': collection_id,
              }
     query, values = utils.build_sql_where(
-            'SELECT id, created, name, collection_id FROM types', params=params)
+            'SELECT id, created, name, collection_id FROM types',
+            params=params)
     fetchResult = db.get_db().execute(query, values).fetchall()
-    return [Type(f['id'], f['name']) for f in fetchResult]
+    return [Type(f['id'], f['name'], f['collection_id']) for f in fetchResult]
 
 
 def fetch_single(id=None, collection_id=None, name=None):
@@ -37,7 +38,7 @@ def update(id, name=None):
         (name, id,)
     )
     db.get_db().commit()
- 
+
 
 def delete(id):
     db.get_db().execute(

@@ -35,7 +35,8 @@ def search(collection_id, match_type, match_string):
             FROM bookmarks as b, types as t
             where b.type_id = t.id AND t.collection_id = ?"""
     query += " AND b." + match_type + " LIKE ?"
-    fetchResult = db.get_db().execute(query, (collection_id, '%' + match_string + '%',)).fetchall()
+    fetchResult = db.get_db().execute(
+            query, (collection_id, '%' + match_string + '%',)).fetchall()
 
     def bookmark(row):
         return Bookmark(
@@ -44,7 +45,8 @@ def search(collection_id, match_type, match_string):
             row['bookmark_name'],
             Type(
                 row['type_id'],
-                row['type_name']
+                row['type_name'],
+                0
             ),
             row['bookmark_link'],
             row['bookmark_description']
@@ -85,7 +87,8 @@ def fetch(
             row['bookmark_name'],
             Type(
                 row['type_id'],
-                row['type_name']
+                row['type_name'],
+                0
             ),
             row['bookmark_link'],
             row['bookmark_description']
@@ -150,6 +153,7 @@ def bookmark_user(bookmark_id):
         return None
 
     return User(result['id'], result['username'])
+
 
 # Convenience for authenticating user access
 def bookmark_user_id(bookmark_id):

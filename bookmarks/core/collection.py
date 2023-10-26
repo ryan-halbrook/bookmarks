@@ -17,15 +17,19 @@ def create(user_id, name):
 
 
 def fetch(user_id):
-    query = "SELECT id, name, created, user_id FROM collections WHERE user_id = ?"
+    query = '''SELECT id, name, created, user_id
+               FROM collections WHERE user_id = ?'''
     fetchResult = db.get_db().execute(query, (user_id,)).fetchall()
 
-    return [Collection(row['id'], row['created'], row['name'], row['user_id']) for row in fetchResult]
+    return [Collection(row['id'], row['created'], row['name'], row['user_id'])
+            for row in fetchResult]
 
 
 def fetch_single(id):
     query = "SELECT id, name, created, user_id FROM collections WHERE id = ?"
     result = db.get_db().execute(query, (id,)).fetchone()
+    if not result:
+        return None
     return Collection(
         result['id'],
         result['created'],

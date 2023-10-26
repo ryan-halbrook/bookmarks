@@ -1,5 +1,6 @@
-from flask import Blueprint, request, abort
+from flask import Blueprint, request, abort, g
 import bookmarks.core.user as user
+from bookmarks.auth import login_required
 
 bp = Blueprint('users', __name__, url_prefix='/')
 
@@ -15,18 +16,13 @@ def users():
 
 
 @bp.put('/users')
+@login_required
 def update_user():
-    email = request.json['email']
-    password = request.json['password']
-    token = request.json['token']
-    try:
-        updated_user = user.update_user(token, email, password)
-    except Exception as e:
-        print(e)
-        abort(500)
-    if not updated_user:
-        abort(500)
+    email = request.json.get('email')
+    password = request.json.get('password')
+    updated_user = user.update_user(g.user.id, email, password)
     return updated_user.to_json()
+
 
 @bp.post('/users/login')
 def login():

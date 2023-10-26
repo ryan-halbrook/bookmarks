@@ -4,9 +4,8 @@ import functools
 
 
 def get_authenticated_user():
-    auth_header = request.headers['Authorization']
+    auth_header = request.headers.get('Authorization')
     if not auth_header:
-        print('no auth')
         abort(401)
     authenticated_user = user.get_authenticated_user(
         auth_header.split(' ')[1])
@@ -19,16 +18,7 @@ def login_required(view):
 
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        auth_header = request.headers['Authorization']
-
-        if not auth_header:
-            abort(401)
-        user = get_authenticated_user()
-        if not user:
-            abort(401)
-            
-        g.user = user
-
+        g.user = get_authenticated_user()
         return view(**kwargs)
 
     return wrapped_view

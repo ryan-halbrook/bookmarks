@@ -11,8 +11,7 @@ bp = Blueprint('tags', __name__, url_prefix='/bookmarks')
 def bookmark_tags_post(id):
     data = request.json
     if bookmark.bookmark_user_id(id) != g.user.id:
-        # Always 404; don't leak information about ids used for other users
-        abort(401)
+        abort(404)
     tag_bookmark_id = data.get('tag_bookmark_id', None)
     if not tag_bookmark_id:
         abort(400)
@@ -24,8 +23,7 @@ def bookmark_tags_post(id):
 @login_required
 def bookmark_tags(id):
     if bookmark.bookmark_user_id(id) != g.user.id:
-        # Always 404; don't leak information about ids used for other users
-        abort(401)
+        abort(404)
     return [t.to_json() for t in tag.fetch_tags(id)]
 
 
@@ -33,7 +31,6 @@ def bookmark_tags(id):
 @login_required
 def bookmark_tags_delete(id, tag_id):
     if bookmark.bookmark_user_id(id) != g.user.id:
-        # Always 404; don't leak information about ids used for other users
-        abort(401)
+        abort(404)
     tag.delete(tag_id)
     return []

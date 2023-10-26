@@ -11,12 +11,12 @@ def test_create(app):
         link = 'http://example.com/create'
         description = 'lorem ipsum...'
 
-        bookmark.create(1, name, type_id, link, description);
+        bookmark.create(1, name, type_id, link, description)
         bookmarks = get_db().execute(
                 'SELECT b.id FROM bookmarks as b WHERE'
                 ' b.name = ? AND b.type_id = ? AND b.link = ?'
-                ' AND b.description = ?'
-                , (name, type_id, link, description)).fetchall()
+                ' AND b.description = ?',
+                (name, type_id, link, description)).fetchall()
         assert len(bookmarks) == 1
 
 
@@ -33,7 +33,7 @@ def test_fetch_id(app):
 def test_fetch_name(app):
     with app.app_context():
         result = bookmark.fetch_single(name='test bookmark',
-                                        type_name='test type')
+                                       type_name='test type')
         assert result.name == 'test bookmark'
 
 
@@ -55,7 +55,7 @@ def test_update(app):
         updated = bookmark.fetch_single(20)
         assert updated.bookmark_type.id == 10
         assert updated.link == 'new link'
-        
+
 
 def test_delete(app):
     with app.app_context():

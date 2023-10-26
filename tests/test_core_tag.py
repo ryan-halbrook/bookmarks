@@ -1,6 +1,5 @@
 import bookmarks.core.tag as tag
 import bookmarks.core.bookmark
-from bookmarks.db import get_db
 import pytest
 
 

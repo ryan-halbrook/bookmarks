@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class User:
     def __init__(self, id: int, email: str):
         self.id = id
@@ -40,17 +41,19 @@ class Collection:
             'name': self.name if self.name else 'UNRESOLVED',
             'user_id': self.user_id,
         }
-    
+
 
 class Type:
-    def __init__(self, id: int, name: str):
+    def __init__(self, id: int, name: str, collection_id):
         self.id = id
         self.name = name
-    
+        self.collection_id = collection_id
+
     def to_json(self):
         return {
             'id': self.id,
             'name': self.name if self.name else 'UNRESOLVED',
+            'collection_id': self.collection_id,
         }
 
 
@@ -79,7 +82,7 @@ class Tag:
     def __init__(self, id: int, bookmark: Bookmark):
         self.id = id
         self.bookmark = bookmark
-    
+
     def to_json(self):
         return {
             'tag_id': self.id,

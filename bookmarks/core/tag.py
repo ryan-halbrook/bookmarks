@@ -51,23 +51,26 @@ def fetch_tags(bookmark_id, type_name=None):
                (t.bookmark_id = a.id AND t.tag_bookmark_id = ?))"""
     if type_name:
         query += ' AND ta.name = ?'
-    params = (bookmark_id, bookmark_id, type_name) if type_name else (bookmark_id, bookmark_id)
-    
+        params = (bookmark_id, bookmark_id, type_name)
+    else:
+        params = (bookmark_id, bookmark_id)
+
     fetchResults = db.get_db().execute(query, params).fetchall()
 
     def bookmark(row):
-        return Tag( row['tag_id'],
-                    Bookmark(
-                        row['bookmark_id'],
-                        row['bookmark_created'],
-                        row['bookmark_name'],
-                        Type(
+        return Tag(row['tag_id'],
+                   Bookmark(
+                       row['bookmark_id'],
+                       row['bookmark_created'],
+                       row['bookmark_name'],
+                       Type(
                             row['type_id'],
-                            row['type_name']
-                        ),
-                        row['bookmark_link'],
-                        row['bookmark_description']
-                    ))
+                            row['type_name'],
+                            0
+                       ),
+                       row['bookmark_link'],
+                       row['bookmark_description']
+                       ))
 
     return [bookmark(row) for row in fetchResults]
 
@@ -104,7 +107,8 @@ def fetch_resources(bookmark_id, type_name=None):
             row['bookmark_name'],
             Type(
                 row['type_id'],
-                row['type_name']
+                row['type_name'],
+                0
             ),
             row['bookmark_link'],
             row['bookmark_description']
