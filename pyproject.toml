@@ -7,7 +7,7 @@ name = "bookmarks"
 version = "0.0.1"
 dependencies = [
     "Flask",
-    "PyJWT"
+    "PyJWT",
     "psycopg2-binary"
 ]
 
