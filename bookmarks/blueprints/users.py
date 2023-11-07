@@ -9,9 +9,10 @@ bp = Blueprint('users', __name__, url_prefix='/')
 def users():
     email = request.json['email']
     password = request.json['password']
-    new_user = user.add_user(email, password)
-    if not new_user:
-        abort(500)
+    try:
+        new_user = user.add_user(email, password)
+    except user.EmailTaken:
+        abort(422)
     return new_user.to_json()
 
 
@@ -28,7 +29,8 @@ def update_user():
 def login():
     email = request.json['email']
     password = request.json['password']
-    authenticated_user = user.login(email, password)
-    if authenticated_user:
-        return authenticated_user.to_json()
-    abort(401)
+    try:
+        user_token = user.login(email, password)
+    except user.InvalidCredentials:
+        abort(401)
+    return user_token.to_json()

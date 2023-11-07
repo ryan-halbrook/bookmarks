@@ -2,7 +2,7 @@ import jwt
 
 
 def request_headers(authenticated_user):
-    return {'Authorization': 'bearer ' + authenticated_user.token}
+    return {'Authorization': 'bearer ' + authenticated_user.user_token.token}
 
 
 def invalid_auth_headers():
@@ -44,4 +44,4 @@ def unauthorized_test(client, url, method='GET',
         method=method,
         json=json,
         headers=invalid_auth_headers())
-    assert response.status_code == 500
+    assert response.status_code == 401

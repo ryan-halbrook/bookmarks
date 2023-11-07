@@ -1,15 +1,22 @@
 from bookmarks import db
 from bookmarks.types import Type
 import bookmarks.core.utils as utils
+import psycopg2.errors
 
 
 def create(name, collection_id=1):
-    db.get_db().execute(
-        'INSERT INTO types (name, collection_id) VALUES'
-        ' (?, ?)',
-        (name, collection_id,)
-    )
-    db.get_db().commit()
+    try:
+        cur = db.get_cursor()
+        cur.execute(
+            'INSERT INTO types (name, collection_id) VALUES'
+            ' (%s, %s)',
+            (name, collection_id,)
+        )
+        db.get_db().commit()
+    except psycopg2.errors.UniqueViolation:
+        return None
+    finally:
+        cur.close()
 
 
 def fetch(id=None, collection_id=None, name=None):
@@ -21,8 +28,16 @@ def fetch(id=None, collection_id=None, name=None):
     query, values = utils.build_sql_where(
             'SELECT id, created, name, collection_id FROM types',
             params=params)
-    fetchResult = db.get_db().execute(query, values).fetchall()
-    return [Type(f['id'], f['name'], f['collection_id']) for f in fetchResult]
+    try:
+        cur = db.get_cursor()
+        cur.execute(query, values)
+        fetchResult = cur.fetchall()
+        return [Type(f['id'],
+                     f['name'],
+                     f['collection_id'])
+                for f in fetchResult]
+    finally:
+        cur.close()
 
 
 def fetch_single(id=None, collection_id=None, name=None):
@@ -31,18 +46,18 @@ def fetch_single(id=None, collection_id=None, name=None):
 
 
 def update(id, name=None):
-    db.get_db().execute(
-        'UPDATE types'
-        ' SET name = ?'
-        ' WHERE id = ?',
-        (name, id,)
-    )
-    db.get_db().commit()
+    try:
+        cur = db.get_cursor()
+        cur.execute('UPDATE types SET name = %s WHERE id = %s', (name, id,))
+        db.get_db().commit()
+    finally:
+        cur.close()
 
 
 def delete(id):
-    db.get_db().execute(
-        'DELETE FROM types WHERE id = ?',
-        (id,)
-    )
-    db.get_db().commit()
+    try:
+        cur = db.get_cursor()
+        cur.execute('DELETE FROM types WHERE id = %s', (id,))
+        db.get_db().commit()
+    finally:
+        cur.close()

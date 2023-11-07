@@ -1,17 +1,20 @@
 from flask import g, abort, request
 import bookmarks.core.user as user
 import functools
+import bookmarks.types as types
 
 
-def get_authenticated_user():
+def get_authenticated_user() -> user.User:
     auth_header = request.headers.get('Authorization')
     if not auth_header:
         abort(401)
-    authenticated_user = user.get_authenticated_user(
-        auth_header.split(' ')[1])
-    if not authenticated_user:
-        abort(500)
-    return authenticated_user
+    try:
+        username = user.UserToken(auth_header.split(' ')[1]).username()
+        return user.get_user(username)
+    except types.InvalidToken:
+        abort(401)
+    except user.UserNotFound:
+        abort(401)
 
 
 def login_required(view):

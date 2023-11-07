@@ -6,9 +6,8 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY=os.environ.get('DB_SECRET_KEY', 'secret'),
-        DB_URI=os.environ.get('DB_URI', os.path.join(app.instance_path,
-                              'bookmarks.sqlite')),
+        SECRET_KEY=os.environ.get('DB_SECRET_KEY'),
+        DB_URI=os.environ.get('DB_URI')
     )
 
     if test_config is None:

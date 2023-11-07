@@ -1,21 +1,27 @@
 import bookmarks.db as db
-from bookmarks.types import Bookmark, Type, User
+from bookmarks.types import Bookmark, Type, User, NameInUse
 import bookmarks.core.utils as utils
-import sqlite3
+import psycopg2.errors
 
 
 def create(collection_id, name, type_id, link, description):
     try:
-        cur = db.get_db().cursor()
+        cur = db.get_cursor()
         cur.execute(
             'INSERT INTO bookmarks (name, type_id, link, description)'
-            ' VALUES (?, ?, ?, ?)',
+            ' VALUES (%s, %s, %s, %s) RETURNING id',
             (name, type_id, link, description)
         )
-        bookmark_id = cur.lastrowid
+        result = cur.fetchone()
+        if result:
+            bookmark_id = result['id']
+        else:
+            return None
         db.get_db().commit()
-    except sqlite3.Error:
-        return None
+    except psycopg2.errors.UniqueViolation:
+        raise NameInUse()
+    finally:
+        cur.close()
     return Bookmark(bookmark_id, None, name, None, link, description)
 
 
@@ -33,10 +39,12 @@ def search(collection_id, match_type, match_string):
             t.name as type_name, t.id as type_id,
             b.description as bookmark_description
             FROM bookmarks as b, types as t
-            where b.type_id = t.id AND t.collection_id = ?"""
-    query += " AND b." + match_type + " LIKE ?"
-    fetchResult = db.get_db().execute(
-            query, (collection_id, '%' + match_string + '%',)).fetchall()
+            where b.type_id = t.id AND t.collection_id = %s"""
+    query += " AND b." + match_type + " ILIKE %s"
+    cur = db.get_cursor()
+    cur.execute(query, (collection_id, '%' + match_string + '%',))
+    fetchResult = cur.fetchall()
+    cur.close()
 
     def bookmark(row):
         return Bookmark(
@@ -58,12 +66,12 @@ def fetch(
         user_id=None, id=None, collection_id=None, name=None, type_id=None,
         type_name=None):
     params = {
-        'bookmark_id': id,
-        'bookmark_name': name,
-        'type_id': type_id,
-        'type_name': type_name,
-        'collection_id': collection_id,
-        'user_id': user_id,
+        'b.id': id,
+        'b.name': name,
+        'b.type_id': type_id,
+        't.name': type_name,
+        't.collection_id': collection_id,
+        'c.user_id': user_id,
     }
 
     query = """SELECT b.id as bookmark_id, b.created as created,
@@ -77,8 +85,11 @@ def fetch(
     if any(params.values()):
         query += " AND "
     query, values = utils.build_sql_where(
-        query, params=params, add_where=False)
-    fetchResult = db.get_db().execute(query, values).fetchall()
+            query, params=params, add_where=False)
+    cur = db.get_cursor()
+    cur.execute(query, values)
+    fetchResult = cur.fetchall()
+    cur.close()
 
     def bookmark(row):
         return Bookmark(
@@ -116,41 +127,44 @@ def update(id, name=None, link=None, type_id=None, description=None):
     for key, value in sets.items():
         if not first:
             set_stmt += ', '
-        set_stmt += key + ' = ?'
+        set_stmt += key + ' = %s'
         set_values.append(value)
         first = False
 
-    db.get_db().execute(
-        'UPDATE bookmarks' + set_stmt + ' WHERE id = ?',
+    cur = db.get_cursor()
+    cur.execute(
+        'UPDATE bookmarks' + set_stmt + ' WHERE id = %s',
         set_values + [id]
     )
     db.get_db().commit()
+    cur.close()
 
 
 def delete(id):
-    db.get_db().execute(
-        'DELETE FROM bookmarks WHERE id = ?',
-        (id,)
-    )
+    cur = db.get_cursor()
+    cur.execute('DELETE FROM bookmarks WHERE id = %s', (id,))
     db.get_db().commit()
+    cur.close()
 
 
 def bookmark_user(bookmark_id):
-    result = db.get_db().execute(
+    cur = db.get_cursor()
+    cur.execute(
         'SELECT c.user_id as user_id FROM bookmarks as b, types as t, '
         'collections as c WHERE b.type_id = t.id AND t.collection_id = c.id '
-        'AND b.id = ?', (bookmark_id,)
-    ).fetchone()
+        'AND b.id = %s', (bookmark_id,)
+        )
+    result = cur.fetchone()
+    cur.close()
 
     if not result:
         return None
     user_id = result['user_id']
 
-    result = db.get_db().execute(
-        'SELECT id, username FROM users WHERE id = ?',
-        (user_id,)).fetchone()
-    if not result:
-        return None
+    cur = db.get_cursor()
+    cur.execute('SELECT id, username FROM users WHERE id = %s', (user_id,))
+    result = cur.fetchone()
+    cur.close()
 
     return User(result['id'], result['username'])
 

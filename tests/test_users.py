@@ -1,4 +1,4 @@
-from bookmarks.db import get_db
+from bookmarks.db import get_cursor
 from werkzeug.security import check_password_hash
 from tests.headers import request_headers, unauthorized_test
 
@@ -13,13 +13,15 @@ def test_add_user(client, app):
     response = client.post('/users', json=post_json)
     assert response.status_code == 200
     assert response.json['email'] == email
-    user_id = response.json['id']
 
     with app.app_context():
-        result = get_db().execute(
-            'SELECT id, password FROM users WHERE id = ?',
-            (user_id,)).fetchone()
-    assert check_password_hash(result['password'], password)
+        cur = get_cursor()
+        cur.execute(
+            'SELECT id, password FROM users WHERE username = %s',
+            (email,))
+        result = cur.fetchone()
+        cur.close()
+        assert check_password_hash(result['password'], password)
 
     # Email taken
     new_user = {
@@ -27,13 +29,16 @@ def test_add_user(client, app):
         'password': '5678'
     }
     response = client.post('/users', json=new_user)
-    assert response.status_code == 500
+    assert response.status_code == 422
 
     # Check password is not changed
     with app.app_context():
-        result = get_db().execute(
-            'SELECT id, password FROM users WHERE id = ?',
-            (user_id,)).fetchone()
+        cur = get_cursor()
+        cur.execute(
+            'SELECT id, password FROM users WHERE username = %s',
+            (email,))
+        result = cur.fetchone()
+        cur.close()
     assert check_password_hash(result['password'], password)
 
 
@@ -49,13 +54,15 @@ def test_update_user(client, app, authenticated_user):
                           headers=request_headers(authenticated_user))
     assert response.status_code == 200
     assert response.json['email'] == new_email
-    user_id = response.json['id']
 
     with app.app_context():
-        result = get_db().execute(
-            'SELECT password FROM users WHERE id = ?',
-            (user_id,)).fetchone()
-    assert check_password_hash(result['password'], new_password)
+        cur = get_cursor()
+        cur.execute(
+            'SELECT password FROM users WHERE username = %s',
+            (new_email,))
+        result = cur.fetchone()
+        cur.close()
+        assert check_password_hash(result['password'], new_password)
 
 
 def test_update_user_unauthorized(client, app):
@@ -74,12 +81,11 @@ def test_login_user(client, app):
     }
     response = client.post('/users', json=post_json)
     assert response.status_code == 200
-    user_id = response.json['id']
+    assert response.json['email'] == email
 
     # Login
     response = client.post('/users/login', json=post_json)
     assert response.status_code == 200
-    assert response.json['id'] == user_id
     assert response.json['token']
 
     wrong_password = {

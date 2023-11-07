@@ -7,6 +7,6 @@ def build_sql_where(query, params={}, add_where=True):
             continue
         if queryParams:
             query += ' AND '
-        query += (key + ' = ?')
+        query += (key + ' = %s')
         queryParams.append(param)
     return query, tuple(queryParams)

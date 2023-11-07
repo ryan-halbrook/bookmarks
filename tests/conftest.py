@@ -1,10 +1,9 @@
 import os
-import tempfile
-
 import pytest
 from bookmarks import create_app
-from bookmarks.db import get_db, init_db
+from bookmarks.db import get_db, get_cursor, init_db
 import bookmarks.core.user as user
+
 
 with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
     _data_sql = f.read().decode('utf-8')
@@ -12,37 +11,42 @@ with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
 
 @pytest.fixture
 def app():
-    db_fd, db_path = tempfile.mkstemp()
-
-    app = create_app({
-        'TESTING': True,
-        'DB_URI': db_path,
-    })
+    app = create_app({'TESTING': True})
 
     with app.app_context():
+        cur = get_cursor()
         init_db()
-        get_db().executescript(_data_sql)
+        cur.execute(_data_sql)
+        get_db().commit()
+        cur.close()
 
     yield app
 
-    os.close(db_fd)
-    os.unlink(db_path)
+
+class AuthenticatedUser:
+    def __init__(self, user, user_token):
+        self.user = user
+        self.user_token = user_token
 
 
 @pytest.fixture
-def authenticated_user(app):
+def authenticated_user(app) -> AuthenticatedUser:
     email = 'user@example.com'
     password = '1234'
 
     with app.app_context():
-        user.add_user(email, password)
-        auth_user = user.login(email, password)
+        new_user = user.add_user(email, password)
+        user_token = user.login(email, password)
 
-        # Steal the collections from the user defined in static test sql
-        get_db().execute('UPDATE collections SET user_id = ?', (auth_user.id,))
-        get_db().commit()
+        # Steal collections from the user defined in static test sql
+        try:
+            cur = get_cursor()
+            cur.execute('UPDATE collections SET user_id = %s', (new_user.id,))
+            get_db().commit()
+        finally:
+            cur.close()
 
-    return auth_user
+    return AuthenticatedUser(new_user, user_token)
 
 
 @pytest.fixture

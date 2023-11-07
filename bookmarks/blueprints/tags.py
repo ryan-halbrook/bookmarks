@@ -15,7 +15,10 @@ def bookmark_tags_post(id):
     tag_bookmark_id = data.get('tag_bookmark_id', None)
     if not tag_bookmark_id:
         abort(400)
-    tag.create(id, tag_bookmark_id)
+    try:
+        tag.create(id, tag_bookmark_id)
+    except Exception:
+        abort(400)
     return ''
 
 

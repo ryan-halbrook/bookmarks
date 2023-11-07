@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2.errors
 
 import pytest
 from bookmarks.db import get_db
@@ -9,8 +9,9 @@ def test_get_close_db(app):
         db = get_db()
         assert db is get_db()
 
-    with pytest.raises(sqlite3.ProgrammingError) as e:
-        db.execute('SELECT 1')
+    with pytest.raises(psycopg2.errors.InterfaceError) as e:
+        cur = db.cursor()
+        cur.execute('SELECT 1')
 
     assert 'closed' in str(e.value)
 

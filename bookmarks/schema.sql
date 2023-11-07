@@ -1,46 +1,61 @@
 -- Bookmark database supporting types and tagging associations.
 
 CREATE TABLE users (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL
 );
 
 CREATE TABLE collections (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     name TEXT NOT NULL,
     user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id)
+    CONSTRAINT fk_user
+        FOREIGN KEY (user_id)
+            REFERENCES users (id)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE types (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     name TEXT NOT NULL,
     collection_id INTEGER NOT NULL,
-    FOREIGN KEY (collection_id) REFERENCES collections (id)
+    CONSTRAINT fk_collection
+        FOREIGN KEY (collection_id)
+            REFERENCES collections (id)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE bookmarks (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     type_id INTEGER NOT NULL,
     name TEXT NOT NULL,
     link TEXT,
     description TEXT,
     UNIQUE (type_id, name),
-    FOREIGN KEY (type_id) REFERENCES types (id)
+    CONSTRAINT fk_type
+        FOREIGN KEY (type_id)
+            REFERENCES types (id)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE tags (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     bookmark_id INTEGER NOT NULL,
     tag_bookmark_id INTEGER NOT NULL,
     UNIQUE (bookmark_id, tag_bookmark_id),
-    FOREIGN KEY (bookmark_id) REFERENCES bookmarks (id),
-    FOREIGN KEY (tag_bookmark_id) REFERENCES bookmarks (id),
+    CONSTRAINT fk_bookmark
+        FOREIGN KEY (bookmark_id)
+            REFERENCES bookmarks (id)
+            ON DELETE CASCADE,
+    CONSTRAINT fk_tag_bookmark
+        FOREIGN KEY (tag_bookmark_id)
+            REFERENCES bookmarks (id)
+            ON DELETE CASCADE,
     CHECK (bookmark_id != tag_bookmark_id)
 );

@@ -1,4 +1,11 @@
 from datetime import datetime
+import jwt
+import jwt.exceptions
+from flask import current_app
+
+
+class NameInUse(BaseException):
+    pass
 
 
 class User:
@@ -13,18 +20,30 @@ class User:
         }
 
 
-class AuthenticatedUser:
-    def __init__(self, id: int, email: str, token: str):
-        self.id = id
-        self.email = email
+class InvalidToken(BaseException):
+    pass
+
+
+class UserToken:
+    def __init__(self, token: str):
         self.token = token
+        self._decoded_token = None
 
     def to_json(self):
         return {
-            'id': self.id,
-            'email': self.email,
             'token': self.token
         }
+
+    def decoded_token(self):
+        if not self._decoded_token:
+            self._decoded_token = jwt.decode(
+                self.token, current_app.config['SECRET_KEY'],
+                algorithms=['HS256'])
+
+        return self._decoded_token
+
+    def username(self):
+        return self.decoded_token()['user']
 
 
 class Collection:

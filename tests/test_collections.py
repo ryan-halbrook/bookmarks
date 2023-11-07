@@ -1,8 +1,8 @@
-from bookmarks.db import get_db
+from bookmarks.db import get_cursor
 from tests.headers import request_headers, unauthorized_test
 
 
-def test_create(client, authenticated_user):
+def test_create(client, app, authenticated_user):
     name = 'New test collection'
     response = client.post(
         '/collections',
@@ -11,7 +11,7 @@ def test_create(client, authenticated_user):
 
     assert response.status_code == 200
     assert response.json['name'] == name
-    assert response.json['user_id'] == authenticated_user.id
+    assert response.json['user_id'] == authenticated_user.user.id
 
     # name field missing in json
     response = client.post(
@@ -28,12 +28,15 @@ def test_create_unauthorized(client, app):
 
     # Check database
     with app.app_context():
-        query = 'SELECT COUNT(id) FROM collections WHERE name=?'
-        count = get_db().execute(query, (name,)).fetchone()[0]
+        query = 'SELECT COUNT(id) FROM collections WHERE name=%s'
+        cur = get_cursor()
+        cur.execute(query, (name,))
+        count = cur.fetchone()[0]
+        cur.close()
         assert count == 0
 
 
-def test_get(client, authenticated_user):
+def test_get(client, app, authenticated_user):
     response = client.get(
         '/collections',
         headers=request_headers(authenticated_user))

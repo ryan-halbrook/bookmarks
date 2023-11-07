@@ -1,67 +1,81 @@
 import bookmarks.db as db
-from bookmarks.types import User, AuthenticatedUser
+from bookmarks.types import User, UserToken
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app
 import jwt
-import sqlite3
+import psycopg2.errors
 
 
-def add_user(email: str, password: str):
+class EmailTaken(BaseException):
+    pass
+
+
+class UserNotFound(BaseException):
+    pass
+
+
+class InvalidCredentials(BaseException):
+    pass
+
+
+def add_user(email: str, password: str) -> User:
     try:
-        cur = db.get_db().cursor()
-        cur.execute('INSERT INTO users (username, password) VALUES (?, ?)',
+        cur = db.get_cursor()
+        cur.execute('INSERT INTO users (username, password) '
+                    'VALUES (%s, %s) RETURNING *',
                     (email, generate_password_hash(password),))
-        user_id = cur.lastrowid
+        result = cur.fetchone()
         db.get_db().commit()
-    except sqlite3.Error:
-        return None
-    return User(user_id, email)
-
-
-def login(email: str, password: str):
-    result = db.get_db().execute(
-        'SELECT id, password FROM users WHERE username = ?',
-        (email,)).fetchone()
-    if not (result and check_password_hash(result['password'], password)):
-        return None
-    token = jwt.encode(
-        {'user': email}, current_app.config['SECRET_KEY'], algorithm='HS256')
-    return AuthenticatedUser(result['id'], email, token)
-
-
-def auth_jwt_token(token: str):
-    decoded_token = jwt.decode(
-        token, current_app.config['SECRET_KEY'],
-        algorithms=['HS256'])
-    return decoded_token['user']
-
-
-def get_user(email: str):
-    result = db.get_db().execute(
-        'SELECT id, username FROM users WHERE username = ?',
-        (email,)).fetchone()
-    if not result:
-        return None
+    except psycopg2.errors.UniqueViolation:
+        raise EmailTaken()
+    finally:
+        cur.close()
     return User(result['id'], result['username'])
 
 
-def update_user(user_id: str, email: str, password: str):
+def login(email: str, password: str) -> UserToken:
+    cur = db.get_cursor()
+    cur.execute(
+        'SELECT id, password FROM users WHERE username = %s',
+        (email,))
+    result = cur.fetchone()
+    cur.close()
+
+    if not (result and check_password_hash(result['password'], password)):
+        raise InvalidCredentials()
+
+    return UserToken(jwt.encode(
+        {'user': email},
+        current_app.config['SECRET_KEY'],
+        algorithm='HS256'))
+
+
+def get_user(email: str) -> User:
+    cur = db.get_cursor()
+    cur.execute(
+        'SELECT id, username FROM users WHERE username = %s',
+        (email,))
+    result = cur.fetchone()
+    cur.close()
+    if not result:
+        raise UserNotFound()
+    return User(result['id'], result['username'])
+
+
+def update_user(user_id: str, email: str, password: str) -> User:
     try:
-        cur = db.get_db().cursor()
+        cur = db.get_cursor()
         cur.execute(
-            'UPDATE users SET username = ?, password = ? WHERE id = ?',
+            'UPDATE users SET username = %s, password = %s '
+            'WHERE id = %s RETURNING *',
             (email, generate_password_hash(password), user_id,))
+        result = cur.fetchone()
         db.get_db().commit()
-    except sqlite3.Error:
-        return None
+    except psycopg2.errors.UniqueViolation:
+        raise EmailTaken()
+    finally:
+        cur.close()
 
-    return get_user(email)
-
-
-def get_authenticated_user(authorization):
-    email = auth_jwt_token(authorization)
-    if not email:
-        return None
-    user = get_user(email)
-    print('get_authenticated_user', user)
-    return user
+    if not result:
+        raise UserNotFound()
+    return User(result['id'], result['username'])
