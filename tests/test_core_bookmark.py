@@ -10,17 +10,19 @@ def test_create(app):
         type_id = 1
         link = 'http://example.com/create'
         description = 'lorem ipsum...'
+        note = 'sample note'
 
-        bookmark.create(1, name, type_id, link, description)
+        bookmark.create(1, name, type_id, link, description, note=note)
         cur = get_cursor()
         cur.execute(
-                'SELECT b.id FROM bookmarks as b WHERE'
+                'SELECT b.id, b.note_is_markdown FROM bookmarks as b WHERE'
                 ' b.name = %s AND b.type_id = %s AND b.link = %s'
                 ' AND b.description = %s',
                 (name, type_id, link, description))
         bookmarks = cur.fetchall()
         cur.close()
         assert len(bookmarks) == 1
+        assert not bookmarks[0]['note_is_markdown']
 
 
 def test_fetch_all(app):

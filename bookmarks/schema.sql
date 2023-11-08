@@ -36,6 +36,8 @@ CREATE TABLE bookmarks (
     name TEXT NOT NULL,
     link TEXT,
     description TEXT,
+    note TEXT,
+    note_is_markdown BOOLEAN DEFAULT FALSE,
     UNIQUE (type_id, name),
     CONSTRAINT fk_type
         FOREIGN KEY (type_id)

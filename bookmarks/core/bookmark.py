@@ -4,13 +4,13 @@ import bookmarks.core.utils as utils
 import psycopg2.errors
 
 
-def create(collection_id, name, type_id, link, description):
+def create(collection_id, name, type_id, link, description, note=''):
     try:
         cur = db.get_cursor()
         cur.execute(
-            'INSERT INTO bookmarks (name, type_id, link, description)'
-            ' VALUES (%s, %s, %s, %s) RETURNING id',
-            (name, type_id, link, description)
+            'INSERT INTO bookmarks (name, type_id, link, description, note)'
+            ' VALUES (%s, %s, %s, %s, %s) RETURNING id',
+            (name, type_id, link, description, note)
         )
         result = cur.fetchone()
         if result:
