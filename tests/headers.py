@@ -1,4 +1,5 @@
 import jwt
+import os
 
 
 def request_headers(authenticated_user):
@@ -7,7 +8,9 @@ def request_headers(authenticated_user):
 
 def invalid_auth_headers():
     invalid_token = jwt.encode(
-        {'user': 'nil@example.com'}, 'secret', algorithm='HS256')
+        {'user': 'nil@example.com'},
+        os.environ.get('DB_SECRET_KEY'),
+        algorithm='HS256')
     return {'Authorization': 'bearer ' + invalid_token}
 
 
