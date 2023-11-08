@@ -15,6 +15,11 @@ def app():
 
     with app.app_context():
         cur = get_cursor()
+        cur.execute('DROP TABLE IF EXISTS tags')
+        cur.execute('DROP TABLE IF EXISTS bookmarks')
+        cur.execute('DROP TABLE IF EXISTS types')
+        cur.execute('DROP TABLE IF EXISTS collections')
+        cur.execute('DROP TABLE IF EXISTS users')
         init_db()
         cur.execute(_data_sql)
         get_db().commit()
