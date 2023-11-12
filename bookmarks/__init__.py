@@ -5,9 +5,19 @@ from flask import Flask
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    if 'DB_URI' in os.environ:
+        db_uri = os.environ['DB_URI']
+    else:
+        db_user = os.environ.get('DB_USER', 'postgres')
+        db_password = os.environ.get('DB_PASSWORD', 'postgres')
+        db_host = os.environ.get('DB_HOST', 'localhost')
+        db_port = os.enivron.get('DB_PORT', '5432')
+        db_database = os.environ.get('DB_DATABASE', 'postgres')
+        db_uri = 'postgresql://%s:%s@%s:%s/%s' % \
+                (db_user, db_password, db_host, db_port, db_database)
     app.config.from_mapping(
-        SECRET_KEY=os.environ.get('DB_SECRET_KEY'),
-        DB_URI=os.environ.get('DB_URI')
+        SECRET_KEY=os.environ.get['SECRET_KEY'],
+        DB_URI=db_uri
     )
 
     if test_config is None:

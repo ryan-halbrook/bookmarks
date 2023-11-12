@@ -1,0 +1,53 @@
+{
+    "family": "bookmarks-service",
+    "networkMode": "awsvpc",
+    "containerDefinitions": [
+        {
+            "name": "bookmarks-service",
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "hostPort": 80,
+                    "protocol": "tcp"
+                }
+            ],
+            "environment": [
+                {
+                    "name": "HOST",
+                    "value": "0.0.0.0"
+                },
+                {
+                    "name": "PORT",
+                    "value": "80"
+                },
+                {
+                    "name": "DEBUG",
+                    "value": "1"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "SECRET_KEY",
+                    "valueFrom": "arn:aws:secretsmanager:us-west-1:856902638131:secret:dev/bookmarks/key-ODwHfY/key"
+                },
+                {   
+                    "name": "DB_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-west-1:856902638131:secret:rds!db-5039eb47-ae75-48ca-a5d6-1dcc10939d54-ZmHB04/password"
+                },
+                {
+                    "name": "DB_HOST",
+                    "value": "arn:aws:secretsmanager:us-west-1:856902638131:secret:dev/bookmarks/postgres-KAVR5E/endpoint"
+                }
+
+            ],
+            "essential": true
+        }
+    ],
+    "executionRoleArn": "arn:aws:iam::856902638131:role/ecsTaskExecutionRole",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512"
+}
+
