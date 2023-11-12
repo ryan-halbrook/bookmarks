@@ -16,7 +16,7 @@ def create_app(test_config=None):
         db_uri = 'postgresql://%s:%s@%s:%s/%s' % \
                 (db_user, db_password, db_host, db_port, db_database)
     app.config.from_mapping(
-        SECRET_KEY=os.environ.get['SECRET_KEY'],
+        SECRET_KEY=os.environ.get('SECRET_KEY'),
         DB_URI=db_uri
     )
 
