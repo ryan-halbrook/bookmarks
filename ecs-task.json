@@ -40,7 +40,16 @@
                 }
 
             ],
-            "essential": true
+            "essential": true,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                     "awslogs-group": "bookmarks-container",
+                     "awslogs-region": "us-west-1",
+                     "awslogs-create-group": "true",
+                     "awslogs-stream-prefix": "bookmarks"
+                }
+            }
         }
     ],
     "executionRoleArn": "arn:aws:iam::856902638131:role/ecsTaskExecutionRole",
