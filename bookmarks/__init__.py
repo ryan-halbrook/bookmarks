@@ -11,10 +11,10 @@ def create_app(test_config=None):
         db_user = os.environ.get('DB_USER', 'postgres')
         db_password = os.environ.get('DB_PASSWORD', 'postgres')
         db_host = os.environ.get('DB_HOST', 'localhost')
-        db_port = os.enivron.get('DB_PORT', '5432')
+        db_port = os.environ.get('DB_PORT', '5432')
         db_database = os.environ.get('DB_DATABASE', 'postgres')
         db_uri = 'postgresql://%s:%s@%s:%s/%s' % \
-                (db_user, db_password, db_host, db_port, db_database)
+            (db_user, db_password, db_host, db_port, db_database)
     app.config.from_mapping(
         SECRET_KEY=os.environ.get('SECRET_KEY'),
         DB_URI=db_uri
