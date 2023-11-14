@@ -10,6 +10,7 @@ def create(user_id, name):
             'INSERT INTO collections (name, user_id) VALUES (%s, %s)',
             (name, user_id,))
         coll_id = cur.lastrowid
+        db.get_db().commit()
         return Collection(coll_id, None, name, user_id)
     except psycopg2.errors.UniqueViolation:
         raise NameInUse()

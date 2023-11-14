@@ -3,6 +3,7 @@ import pytest
 from bookmarks import create_app
 from bookmarks.db import get_db, get_cursor, init_db
 import bookmarks.core.user as user
+from testcontainers.postgres import PostgresContainer
 
 
 with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
@@ -10,22 +11,41 @@ with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
 
 
 @pytest.fixture
-def app():
-    app = create_app({'TESTING': True})
+def app(postgres):
+    db_uri = ''.join(postgres.get_connection_url().split('+psycopg2'))
+    app = create_app(
+            {
+                'TESTING': True,
+                'SECRET_KEY': 'test secret',
+                'DB_URI': db_uri
+            })
 
     with app.app_context():
         cur = get_cursor()
-        cur.execute('DROP TABLE IF EXISTS tags')
-        cur.execute('DROP TABLE IF EXISTS bookmarks')
-        cur.execute('DROP TABLE IF EXISTS types')
-        cur.execute('DROP TABLE IF EXISTS collections')
-        cur.execute('DROP TABLE IF EXISTS users')
+
+        def clean_db():
+            cur.execute('DROP SCHEMA public CASCADE')
+            cur.execute('CREATE SCHEMA public')
+
+        def insert_test_data():
+            cur.execute(_data_sql)
+
+        clean_db()
         init_db()
-        cur.execute(_data_sql)
+        insert_test_data()
+
         get_db().commit()
         cur.close()
 
     yield app
+
+
+@pytest.fixture(scope='session')
+def postgres(request):
+    postgres = PostgresContainer('postgres:16.1', user='test')
+    postgres.start()
+    yield postgres
+    postgres.stop()
 
 
 class AuthenticatedUser:
