@@ -78,13 +78,16 @@ class Type:
 
 class Bookmark:
     def __init__(self, id: int, created: datetime, name: str,
-                 bookmark_type: Type, link: str, description: str):
+                 bookmark_type: Type, link: str, description: str,
+                 note: str = None, note_is_markdown: bool = False):
         self.id = id
         self.created = created
         self.name = name
         self.bookmark_type = bookmark_type
         self.link = link
         self.description = description
+        self.note = note
+        self.note_is_markdown = note_is_markdown
 
     def to_json(self):
         return {
@@ -94,6 +97,8 @@ class Bookmark:
             'type': self.bookmark_type.to_json(),
             'link': self.link,
             'description': self.description,
+            'note': self.note,
+            'note_is_markdown': self.note_is_markdown
         }
 
 

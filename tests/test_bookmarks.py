@@ -7,7 +7,9 @@ def example_bookmark(new_type=False):
         'name': 'new bookmark',
         'type': 'new type' if new_type else 'test type',
         'link': 'http://example.com',
-        'description': 'lorem ipsum...'
+        'description': 'lorem ipsum...',
+        'note': 'new note',
+        'note_is_markdown': 'false',
     }
 
 
@@ -163,6 +165,39 @@ def test_update(client, app, authenticated_user):
             assert result['name'] == 'New Name'
         finally:
             cur.close()
+
+    # Add a note
+    client.patch(
+        '/collections/1/bookmarks/1',
+        json={'note': 'New note',
+              'note_is_markdown': 'True'},
+        headers=request_headers(authenticated_user))
+
+    with app.app_context():
+        cur = get_cursor()
+        cur.execute(
+            'SELECT name, note, note_is_markdown'
+            ' FROM bookmarks WHERE id=1')
+        result = cur.fetchone()
+        cur.close()
+        assert result['note'] == 'New note'
+        assert result['note_is_markdown']
+
+    # Disable markdown
+    client.patch(
+        '/collections/1/bookmarks/1',
+        json={'note_is_markdown': 'False'},
+        headers=request_headers(authenticated_user))
+
+    with app.app_context():
+        cur = get_cursor()
+        cur.execute(
+            'SELECT name, note, note_is_markdown'
+            ' FROM bookmarks WHERE id=1')
+        result = cur.fetchone()
+        cur.close()
+        assert result['note'] == 'New note'
+        assert result['note_is_markdown'] is False
 
 
 def test_update_unauthorized(client, app):

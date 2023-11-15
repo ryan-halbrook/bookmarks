@@ -15,13 +15,15 @@ def test_create(app):
         bookmark.create(1, name, type_id, link, description, note=note)
         cur = get_cursor()
         cur.execute(
-                'SELECT b.id, b.note_is_markdown FROM bookmarks as b WHERE'
+                'SELECT b.id, b.note, b.note_is_markdown'
+                ' FROM bookmarks as b WHERE'
                 ' b.name = %s AND b.type_id = %s AND b.link = %s'
                 ' AND b.description = %s',
                 (name, type_id, link, description))
         bookmarks = cur.fetchall()
         cur.close()
         assert len(bookmarks) == 1
+        assert bookmarks[0]['note'] == 'sample note'
         assert not bookmarks[0]['note_is_markdown']
 
 
@@ -52,14 +54,16 @@ def test_update(app):
         assert bookmark.fetch_single(1).description == 'updated desc'
         bookmark.update(1, type_id=2)
         assert bookmark.fetch_single(1).bookmark_type.id == 2
-        # Verify receiving no update parameters raises
-        with pytest.raises(Exception):
-            bookmark.update(1)
         # Update multiple parameters
         bookmark.update(1, type_id=1, link='new link')
         updated = bookmark.fetch_single(1)
         assert updated.bookmark_type.id == 1
         assert updated.link == 'new link'
+        # Update note
+        bookmark.update(1, note='new note', note_is_markdown=True)
+        updated = bookmark.fetch_single(1)
+        assert updated.note == 'new note'
+        assert updated.note_is_markdown
         # Update to invalid type
         with pytest.raises(Exception):
             bookmark.update(1, type_id=50)

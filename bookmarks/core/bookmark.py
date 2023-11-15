@@ -4,13 +4,17 @@ import bookmarks.core.utils as utils
 import psycopg2.errors
 
 
-def create(collection_id, name, type_id, link, description, note=''):
+def create(collection_id, name, type_id, link, description,
+           note='', note_is_markdown=None):
+    if note_is_markdown is None:
+        note_is_markdown = False
     try:
         cur = db.get_cursor()
         cur.execute(
-            'INSERT INTO bookmarks (name, type_id, link, description, note)'
-            ' VALUES (%s, %s, %s, %s, %s) RETURNING id',
-            (name, type_id, link, description, note)
+            'INSERT INTO bookmarks'
+            ' (name, type_id, link, description, note, note_is_markdown)'
+            ' VALUES (%s, %s, %s, %s, %s, %s) RETURNING id',
+            (name, type_id, link, description, note, note_is_markdown)
         )
         result = cur.fetchone()
         if result:
@@ -22,7 +26,8 @@ def create(collection_id, name, type_id, link, description, note=''):
         raise NameInUse()
     finally:
         cur.close()
-    return Bookmark(bookmark_id, None, name, None, link, description)
+    return Bookmark(bookmark_id, None, name, None, link, description,
+                    note=note, note_is_markdown=note_is_markdown)
 
 
 def fetch_single(id=None, collection_id=None, name=None, type_id=None,
@@ -36,6 +41,7 @@ def fetch_single(id=None, collection_id=None, name=None, type_id=None,
 def search(collection_id, match_type, match_string):
     query = """SELECT b.id as bookmark_id, b.created as created,
             b.name as bookmark_name, b.link as bookmark_link,
+            b.note as note, b.note_is_markdown as note_is_markdown,
             t.name as type_name, t.id as type_id,
             b.description as bookmark_description
             FROM bookmarks as b, types as t
@@ -57,7 +63,9 @@ def search(collection_id, match_type, match_string):
                 0
             ),
             row['bookmark_link'],
-            row['bookmark_description']
+            row['bookmark_description'],
+            row['note'],
+            row['note_is_markdown']
         )
     return [bookmark(row) for row in fetchResult]
 
@@ -76,6 +84,7 @@ def fetch(
 
     query = """SELECT b.id as bookmark_id, b.created as created,
             b.name as bookmark_name, b.link as bookmark_link,
+            b.note as note, b.note_is_markdown as note_is_markdown,
             t.name as type_name, t.id as type_id,
             t.collection_id as collection_id,
             b.description as bookmark_description,
@@ -102,14 +111,17 @@ def fetch(
                 0
             ),
             row['bookmark_link'],
-            row['bookmark_description']
+            row['bookmark_description'],
+            row['note'],
+            row['note_is_markdown']
         )
     return [bookmark(row) for row in fetchResult]
 
 
-def update(id, name=None, link=None, type_id=None, description=None):
-    if not any([name, link, type_id, description]):
-        raise
+def update(id, name=None, link=None, type_id=None, description=None,
+           note=None, note_is_markdown=None):
+    if not any([name, link, type_id, description, note, note_is_markdown]):
+        return
 
     sets = {}
     if name:
@@ -120,6 +132,10 @@ def update(id, name=None, link=None, type_id=None, description=None):
         sets['type_id'] = type_id
     if description:
         sets['description'] = description
+    if note:
+        sets['note'] = note
+    if note_is_markdown is not None:
+        sets['note_is_markdown'] = note_is_markdown
 
     set_stmt = ' SET '
     set_values = []
