@@ -1,5 +1,5 @@
 # Bookmarks
-[![Build](https://github.com/ryan-halbrook/bookmarks/actions/workflows/build-test.yml/badge.svg)](https://github.com/ryan-halbrook/bookmarks/actions/workflows/build-test.yml)
+[![Test](https://github.com/ryan-halbrook/bookmarks/actions/workflows/lint-test.yml/badge.svg)](https://github.com/ryan-halbrook/bookmarks/actions/workflows/lint-test.yml)
 
 Bookmarks is a bookmarking service (REST).
 
