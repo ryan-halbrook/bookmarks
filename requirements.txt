@@ -12,4 +12,6 @@ psycopg2-binary==2.9.9
 PyJWT==2.8.0
 pyproject_hooks==1.0.0
 pytest==7.4.0
+testcontainers-core==0.0.1rc1
+testcontainers-postgres==0.0.1rc1
 Werkzeug==2.3.7
