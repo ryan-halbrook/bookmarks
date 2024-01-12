@@ -1,7 +1,7 @@
-# Bookmarks
+# Bookmarks Backend
 [![Test](https://github.com/ryan-halbrook/bookmarks/actions/workflows/lint-test.yaml/badge.svg)](https://github.com/ryan-halbrook/bookmarks/actions/workflows/lint-test.yaml)
 
-Bookmarks is a bookmarking service (REST).
+Bookmarks is an HTTP-based bookmarking service.
 
 ## Features
 
