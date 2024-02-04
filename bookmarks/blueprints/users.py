@@ -33,6 +33,4 @@ def login():
         user_token = user.login(email, password)
     except user.InvalidCredentials:
         abort(401)
-    user_token_json = user_token.to_json()
-    user_token_json['email'] = user_token.username()
-    return user_token_json
+    return user_token.to_json()

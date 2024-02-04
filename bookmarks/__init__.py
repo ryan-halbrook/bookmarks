@@ -51,10 +51,6 @@ def create_app(test_config=None):
     from bookmarks.blueprints import tags
     app.register_blueprint(tags.bp)
 
-    @app.get('/')
-    def health_check():
-        return 'OK'
-
     @app.after_request
     def after_request(response):
         response.headers['Access-Control-Allow-Origin'] = '*'

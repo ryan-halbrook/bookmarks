@@ -13,36 +13,31 @@ def fetch_or_create_type(cid, name):
     if not b_type:
         bookmark_type.create(name, collection_id=cid)
         b_type = bookmark_type.fetch_single(collection_id=cid, name=name)
-    return b_type
+    return b_type.id if b_type else None
 
 
 @bp.post('/collections/<cid>/bookmarks')
 @login_required
 def bookmarks_post(cid):
-    try:
-        cid = int(cid)
-    except ValueError:
-        abort(400)
     if collection.collection_user_id(cid) != g.user.id:
         abort(404)
 
     data = request.json
-    return bookmark.create(fetch_or_create_type(cid, data['type']),
-                           data['name'],
-                           data['link'],
-                           data['description'],
-                           data.get('note'),
-                           data.get('noteismarkdown')).to_json()
+    type_name = data['type']
+    type_id = fetch_or_create_type(cid, type_name)
+    bookmark.create(cid,
+                    data['name'],
+                    type_id,
+                    data['link'],
+                    data['description'],
+                    data.get('note'),
+                    data.get('noteismarkdown'))
+    return data
 
 
 @bp.get('/collections/<cid>/bookmarks/<bid>')
 @login_required
 def bookmarks_get(cid, bid):
-    try:
-        cid = int(cid)
-        bid = int(bid)
-    except ValueError:
-        abort(400)
     if collection.collection_user_id(cid) != g.user.id:
         abort(404)
     return bookmark.fetch_single(id=bid, collection_id=cid).to_json()
@@ -51,10 +46,6 @@ def bookmarks_get(cid, bid):
 @bp.get('/collections/<cid>/bookmarks')
 @login_required
 def bookmarks_get_collection(cid):
-    try:
-        cid = int(cid)
-    except ValueError:
-        abort(400)
     if collection.collection_user_id(cid) != g.user.id:
         abort(404)
     type_name = request.args.get('type', None)
@@ -74,11 +65,6 @@ def bookmarks_get_collection(cid):
 @bp.patch('/collections/<cid>/bookmarks/<bid>')
 @login_required
 def bookmarks_patch(cid, bid):
-    try:
-        cid = int(cid)
-        bid = int(bid)
-    except ValueError:
-        abort(400)
     if collection.collection_user_id(cid) != g.user.id:
         abort(404)
 
@@ -93,7 +79,7 @@ def bookmarks_patch(cid, bid):
     def new_key_value(key) -> (str, any):
         if key == 'type_id' and check_mask('type'):
             if new_type_name := request.json.get('type', None):
-                return ('type_id', fetch_or_create_type(cid, new_type_name).id)
+                return ('type_id', fetch_or_create_type(cid, new_type_name))
         elif check_mask(key):
             return (key, request.json.get(key, None))
 
@@ -114,11 +100,6 @@ def bookmarks_patch(cid, bid):
 @bp.delete('/collections/<cid>/bookmarks/<bid>')
 @login_required
 def bookmarks_delete(cid, bid):
-    try:
-        cid = int(cid)
-        bid = int(bid)
-    except ValueError:
-        abort(400)
     if bookmark.bookmark_user_id(bid) != g.user.id:
         abort(404)
     bookmark.delete(bid)
