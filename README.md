@@ -3,6 +3,9 @@
 
 Bookmarks is an HTTP-based bookmarking service.
 
+## API
+http://bookmarks-api.s3-website-us-west-1.amazonaws.com
+
 ## Features
 
 ### Bookmarks

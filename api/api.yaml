@@ -1,8 +1,61 @@
 openapi: 3.1.0
 info:
   title: Bookmarks API
-  version: 0.0.1
 paths:
+  /users:
+    post:
+      summary: Create a user
+      description: Create a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: success
+        "422":
+          description: email already exists
+    put:
+      summary: Update a user
+      description: Change a user's email or password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: success
+  /users/login:
+    post:
+      summary: Login
+      description: Log in a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: success
+        "401":
+          description: invalid email or password
   /collections:
     get:
       summary: Get collections
@@ -99,6 +152,10 @@ paths:
                   type: string
                 description:
                   type: string
+                note:
+                  type: string
+                note_is_markdown:
+                  type: boolean
     delete:
       summary: Delete a bookmark
       parameters:
@@ -157,6 +214,10 @@ paths:
                   type: string
                 description:
                   type: string
+                note:
+                  type: string
+                note_is_markdown:
+                  type: boolean
   /types/{type-id}:
     patch:
       summary: Update a type
@@ -253,4 +314,8 @@ components:
               type: integer
             name:
               type: string
+        note:
+          type: string
+        note_is_markdown:
+          type: boolean
 
