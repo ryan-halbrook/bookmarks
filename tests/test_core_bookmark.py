@@ -2,24 +2,25 @@ import pytest
 
 from bookmarks.db import get_cursor
 import bookmarks.core.bookmark as bookmark
+from bookmarks.types import Type
 
 
 def test_create(app):
     with app.app_context():
         name = 'Test Create Bookmark'
-        type_id = 1
+        b_type = Type(1, 'test type', 0)
         link = 'http://example.com/create'
         description = 'lorem ipsum...'
         note = 'sample note'
 
-        bookmark.create(1, name, type_id, link, description, note=note)
+        bookmark.create(b_type, name, link, description, note=note)
         cur = get_cursor()
         cur.execute(
                 'SELECT b.id, b.note, b.note_is_markdown'
                 ' FROM bookmarks as b WHERE'
                 ' b.name = %s AND b.type_id = %s AND b.link = %s'
                 ' AND b.description = %s',
-                (name, type_id, link, description))
+                (name, b_type.id, link, description))
         bookmarks = cur.fetchall()
         cur.close()
         assert len(bookmarks) == 1

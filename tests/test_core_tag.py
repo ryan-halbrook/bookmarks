@@ -1,5 +1,6 @@
 import bookmarks.core.tag as tag
 import bookmarks.core.bookmark
+from bookmarks.types import Type
 import pytest
 
 
@@ -18,8 +19,9 @@ def test_create(app):
 
 def test_fetch(app):
     with app.app_context():
+        b_type = Type(1, 'test type', 0)
         bookmark_id = bookmarks.core.bookmark.create(
-                1, 'a third bookmark', 2, 'http://example.com', '').id
+                b_type, 'a fourth bookmark', 2, 'http://example.com', '').id
         tag.create(1, bookmark_id)
 
         assert len(tag.fetch_tags(1)) == 2

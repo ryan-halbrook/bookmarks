@@ -4,8 +4,8 @@ import bookmarks.core.utils as utils
 import psycopg2.errors
 
 
-def create(collection_id, name, type_id, link, description,
-           note='', note_is_markdown=None):
+def create(b_type, name, link, description, note='',
+           note_is_markdown=None):
     if note_is_markdown is None:
         note_is_markdown = False
     try:
@@ -14,19 +14,19 @@ def create(collection_id, name, type_id, link, description,
             'INSERT INTO bookmarks'
             ' (name, type_id, link, description, note, note_is_markdown)'
             ' VALUES (%s, %s, %s, %s, %s, %s) RETURNING id',
-            (name, type_id, link, description, note, note_is_markdown)
+            (name, b_type.id, link, description, note, note_is_markdown)
         )
         result = cur.fetchone()
+        db.get_db().commit()
         if result:
             bookmark_id = result['id']
         else:
             return None
-        db.get_db().commit()
     except psycopg2.errors.UniqueViolation:
         raise NameInUse()
     finally:
         cur.close()
-    return Bookmark(bookmark_id, None, name, None, link, description,
+    return Bookmark(bookmark_id, None, name, b_type, link, description,
                     note=note, note_is_markdown=note_is_markdown)
 
 
