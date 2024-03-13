@@ -3,7 +3,7 @@ import pytest
 from bookmarks import create_app
 from bookmarks.db import get_db, get_cursor, init_db
 import bookmarks.core.user as user
-from testcontainers.postgres import PostgresContainer
+from testcontainers.postgres import PostgresContainer  # type: ignore
 
 
 with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:

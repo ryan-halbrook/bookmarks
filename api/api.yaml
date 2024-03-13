@@ -132,12 +132,6 @@ paths:
         required: true
         schema:
           type: integer
-      - name: update_mask
-        in: query
-        required: false
-        description: Comma-separated list of fields to update (i.e. 'name,link')
-        schema:
-          type: string
       requestBody:
         content:
           application/json:

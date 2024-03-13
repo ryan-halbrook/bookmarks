@@ -82,32 +82,23 @@ def bookmarks_patch(cid, bid):
     if collection.collection_user_id(cid) != g.user.id:
         abort(404)
 
-    if mask := request.args.get('update_mask'):
-        mask_fields = mask.split(',')
-    else:
-        mask_fields = None
+    data = request.json
+    if not data:
+        abort(400)
 
-    def check_mask(field) -> bool:
-        return (not mask_fields) or (field in mask_fields)
+    type_id = None
+    if type_name := data.get('type'):
+        type_id = fetch_or_create_type(cid, type_name).id
 
-    def new_key_value(key) -> (str, any):
-        if key == 'type_id' and check_mask('type'):
-            if new_type_name := request.json.get('type', None):
-                return ('type_id', fetch_or_create_type(cid, new_type_name).id)
-        elif check_mask(key):
-            return (key, request.json.get(key, None))
+    bookmark.update(
+        bid,
+        name=data.get('name'),
+        link=data.get('link'),
+        type_id=type_id,
+        description=data.get('description'),
+        note=data.get('note'),
+        note_is_markdown=data.get('note_is_markdown'))
 
-    keys = [
-            'name',
-            'link',
-            'type_id',
-            'description',
-            'note',
-            'note_is_markdown',
-            ]
-
-    updates = dict(filter(lambda x: x, [new_key_value(k) for k in keys]))
-    bookmark.update(bid, **updates)
     return ''
 
 

@@ -2,6 +2,7 @@ from datetime import datetime
 import jwt
 import jwt.exceptions
 from flask import current_app
+from typing import Optional
 
 
 class NameInUse(BaseException):
@@ -79,7 +80,7 @@ class Type:
 class Bookmark:
     def __init__(self, id: int, created: datetime, name: str,
                  bookmark_type: Type, link: str, description: str,
-                 note: str = None, note_is_markdown: bool = False):
+                 note: Optional[str] = None, note_is_markdown: bool = False):
         self.id = id
         self.created = created
         self.name = name
