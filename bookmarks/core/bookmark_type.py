@@ -2,9 +2,10 @@ from bookmarks import db
 from bookmarks.types import Type
 import bookmarks.core.utils as utils
 import psycopg2.errors
+from typing import List
 
 
-def create(name, collection_id=1):
+def create(name: str, collection_id: int = 1) -> None:
     try:
         cur = db.get_cursor()
         cur.execute(
@@ -19,7 +20,9 @@ def create(name, collection_id=1):
         cur.close()
 
 
-def fetch(id=None, collection_id=None, name=None):
+def fetch(
+        id: int | None = None, collection_id: int | None = None,
+        name: str | None = None) -> List[Type]:
     params = {
                 'id': id,
                 'name': name,
@@ -40,12 +43,14 @@ def fetch(id=None, collection_id=None, name=None):
         cur.close()
 
 
-def fetch_single(id=None, collection_id=None, name=None):
+def fetch_single(
+        id: int | None = None, collection_id: int | None = None,
+        name: str | None = None) -> Type | None:
     types = fetch(id=id, collection_id=collection_id, name=name)
     return types[0] if types else None
 
 
-def update(id, name=None):
+def update(id: int, name: str | None = None) -> None:
     try:
         cur = db.get_cursor()
         cur.execute('UPDATE types SET name = %s WHERE id = %s', (name, id,))
@@ -54,7 +59,7 @@ def update(id, name=None):
         cur.close()
 
 
-def delete(id):
+def delete(id: int) -> None:
     try:
         cur = db.get_cursor()
         cur.execute('DELETE FROM types WHERE id = %s', (id,))

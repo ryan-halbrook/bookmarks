@@ -1,9 +1,10 @@
 import bookmarks.db as db
 from bookmarks.types import Bookmark, Tag, Type
 from . import bookmark as core_bookmark
+from typing import List, Any
 
 
-def tag_exists(id1, id2):
+def tag_exists(id1: int, id2: int) -> bool:
     query = """SELECT id FROM tags WHERE (
                (bookmark_id = %s AND tag_bookmark_id = %s) OR
                (bookmark_id = %s AND tag_bookmark_id = %s))"""
@@ -14,7 +15,7 @@ def tag_exists(id1, id2):
     return bool(fetch)
 
 
-def create(bookmark_id, tag_bookmark_id):
+def create(bookmark_id: int, tag_bookmark_id: int) -> None:
     if bookmark_id == tag_bookmark_id:
         raise Exception()
     if tag_exists(bookmark_id, tag_bookmark_id):
@@ -34,7 +35,7 @@ def create(bookmark_id, tag_bookmark_id):
     cur.close()
 
 
-def delete(id):
+def delete(id: int) -> None:
     cur = db.get_cursor()
     cur.execute('DELETE FROM tags WHERE id = %s', (id,))
     db.get_db().commit()
@@ -42,7 +43,8 @@ def delete(id):
 
 
 # bookmark_id, tag_bookmark_id
-def fetch_tags(bookmark_id, type_name=None):
+def fetch_tags(
+        bookmark_id: int, type_name: str | None = None) -> List[Bookmark]:
     query = """SELECT ta.name as type_name, a.id as bookmark_id,
                a.created as bookmark_created,
                a.name as bookmark_name, a.link as bookmark_link,
@@ -53,6 +55,7 @@ def fetch_tags(bookmark_id, type_name=None):
                AND (
                (t.bookmark_id = %s AND t.tag_bookmark_id = a.id) OR
                (t.bookmark_id = a.id AND t.tag_bookmark_id = %s))"""
+    params: Any = None
     if type_name:
         query += ' AND ta.name = %s'
         params = (bookmark_id, bookmark_id, type_name)
