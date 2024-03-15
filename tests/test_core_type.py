@@ -1,4 +1,4 @@
-import bookmarks.core.bookmark_type as bookmark_type
+import bookmarks.model.bookmark_type as bookmark_type
 from bookmarks.db import get_cursor
 
 

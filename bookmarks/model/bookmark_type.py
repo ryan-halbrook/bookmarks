@@ -1,6 +1,6 @@
 from bookmarks import db
 from bookmarks.types import Type
-import bookmarks.core.utils as utils
+import bookmarks.model.utils as utils
 import psycopg2.errors
 from typing import List
 

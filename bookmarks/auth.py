@@ -1,5 +1,5 @@
 from flask import g, abort, request
-import bookmarks.core.user as user
+import bookmarks.model.user as user
 import functools
 import bookmarks.types as types
 

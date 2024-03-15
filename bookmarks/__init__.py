@@ -1,5 +1,11 @@
 import os
 from flask import Flask
+from bookmarks.auth import login_required
+from bookmarks.api.bookmarks import BookmarkCollectionAPI, BookmarkAPI
+from bookmarks.api.collections import CollectionAPI
+from bookmarks.api.bookmark_types import TypeCollectionAPI, TypeAPI
+from bookmarks.api.users import UserAPI, UserLoginAPI, NewUserAPI
+from bookmarks.api.tags import TagCollectionAPI, TagAPI
 
 
 def create_app(test_config=None):
@@ -36,20 +42,33 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
-    from bookmarks.blueprints import users
-    app.register_blueprint(users.bp)
-
-    from bookmarks.blueprints import bookmark_types
-    app.register_blueprint(bookmark_types.bp)
-
-    from bookmarks.blueprints import bookmarks
-    app.register_blueprint(bookmarks.bp)
-
-    from bookmarks.blueprints import collections
-    app.register_blueprint(collections.bp)
-
-    from bookmarks.blueprints import tags
-    app.register_blueprint(tags.bp)
+    app.add_url_rule("/users", view_func=NewUserAPI.as_view("user_new"))
+    app.add_url_rule(
+        "/users", view_func=login_required(UserAPI.as_view("user")))
+    app.add_url_rule(
+        "/users/login", view_func=UserLoginAPI.as_view("user_login"))
+    app.add_url_rule(
+        "/collections",
+        view_func=login_required(CollectionAPI.as_view("collections")))
+    app.add_url_rule(
+        "/collections/<int:id>/types",
+        view_func=login_required(
+            TypeCollectionAPI.as_view("type_collection")))
+    app.add_url_rule(
+        "/types/<int:id>", view_func=login_required(TypeAPI.as_view("type")))
+    app.add_url_rule(
+        "/collections/<int:cid>/bookmarks",
+        view_func=login_required(
+            BookmarkCollectionAPI.as_view("bookmark_collection")))
+    app.add_url_rule(
+        "/collections/<int:cid>/bookmarks/<int:bid>",
+        view_func=login_required(BookmarkAPI.as_view("bookmark")))
+    app.add_url_rule(
+        "/bookmarks/<int:id>/tags",
+        view_func=login_required(TagCollectionAPI.as_view("tag_collection")))
+    app.add_url_rule(
+        "/bookmarks/<int:id>/tags/<int:tag_id>",
+        view_func=login_required(TagAPI.as_view("tag")))
 
     @app.get('/')
     def health_check():

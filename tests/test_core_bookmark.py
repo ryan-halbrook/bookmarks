@@ -1,7 +1,7 @@
 import pytest
 
 from bookmarks.db import get_cursor
-import bookmarks.core.bookmark as bookmark
+import bookmarks.model.bookmark as bookmark
 from bookmarks.types import Type
 
 

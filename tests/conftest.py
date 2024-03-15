@@ -2,7 +2,7 @@ import os
 import pytest
 from bookmarks import create_app
 from bookmarks.db import get_db, get_cursor, init_db
-import bookmarks.core.user as user
+import bookmarks.model.user as user
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
 
