@@ -5,7 +5,7 @@ from flask import current_app
 from typing import Optional
 
 
-class NameInUse(BaseException):
+class NameInUse(Exception):
     pass
 
 
@@ -21,7 +21,7 @@ class User:
         }
 
 
-class InvalidToken(BaseException):
+class InvalidToken(Exception):
     pass
 
 

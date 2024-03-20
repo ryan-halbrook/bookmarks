@@ -6,15 +6,15 @@ import jwt
 import psycopg2.errors
 
 
-class EmailTaken(BaseException):
+class EmailTaken(Exception):
     pass
 
 
-class UserNotFound(BaseException):
+class UserNotFound(Exception):
     pass
 
 
-class InvalidCredentials(BaseException):
+class InvalidCredentials(Exception):
     pass
 
 
