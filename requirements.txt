@@ -31,5 +31,5 @@ types-psycopg2==2.9.21.20240311
 typing_extensions==4.8.0
 urllib3==2.1.0
 websocket-client==1.6.4
-Werkzeug==3.0.1
+Werkzeug==3.0.3
 wrapt==1.16.0
