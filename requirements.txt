@@ -23,7 +23,7 @@ pyflakes==3.2.0
 PyJWT==2.8.0
 pyproject_hooks==1.0.0
 pytest==7.4.0
-requests==2.31.0
+requests==2.32.2
 SQLAlchemy==2.0.23
 testcontainers-core==0.0.1rc1
 testcontainers-postgres==0.0.1rc1
