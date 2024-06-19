@@ -1,6 +1,7 @@
 openapi: 3.1.0
 info:
   title: Bookmarks API
+  version: 0.0.1
 paths:
   /users:
     post:
@@ -62,19 +63,21 @@ paths:
       description: Get list of bookmark collections
       responses:
         "200":
+          description: List of bookmark collections.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    created:
-                      type: date
-                    id:
-                      type: integer
-                    name:
-                      type: string
+                collections:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      created:
+                        type: string
+                      id:
+                        type: integer
+                      name:
+                        type: string
   /collections/{collection-id}/types:
     get:
       summary: Get types
@@ -86,6 +89,7 @@ paths:
           type: integer
       responses:
         "200":
+          description: List of bookmark types for the collection.
           content:
             application/json:
               schema:
@@ -114,6 +118,7 @@ paths:
           type: integer
       responses:
         "200":
+          description: Bookmark.
           content:
             application/json:
               schema:
@@ -150,6 +155,13 @@ paths:
                   type: string
                 note_is_markdown:
                   type: boolean
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
     delete:
       summary: Delete a bookmark
       parameters:
@@ -163,6 +175,13 @@ paths:
         required: true
         schema:
           type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
   /collections/{collection-id}/bookmarks:
     get:
       summary: Get bookmarks
@@ -180,6 +199,7 @@ paths:
           type: string
       responses:
         "200":
+          description: List of bookmarks for the collection.
           content:
             application/json:
               schema:
@@ -212,6 +232,13 @@ paths:
                   type: string
                 note_is_markdown:
                   type: boolean
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
   /types/{type-id}:
     patch:
       summary: Update a type
@@ -230,6 +257,13 @@ paths:
               properties:
                 name:
                   type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
     delete:
       summary: Delete a type
       description: Deletes all bookmarks of the deleted type
@@ -239,6 +273,13 @@ paths:
         required: true
         schema:
           type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
   /bookmarks/{bookmark-id}/tags:
     get:
       summary: Get tags for a bookmark
@@ -249,6 +290,13 @@ paths:
         required: true
         schema:
           type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
     post:
       summary: Tag a bookmark
       description: Tag a bookmark with another bookmark. Creates a bidirectional association between the two bookmarks.
@@ -286,13 +334,21 @@ paths:
         required: true
         schema:
           type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+
 components:
   schemas:
     bookmark:
       type: object
       properties:
         created:
-          type: date
+          type: string
         description:
           type: string
         id:
