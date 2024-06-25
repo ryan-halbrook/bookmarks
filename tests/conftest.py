@@ -42,7 +42,7 @@ def app(postgres):
 
 @pytest.fixture(scope='session')
 def postgres(request):
-    postgres = PostgresContainer('postgres:16.1', username='test')
+    postgres = PostgresContainer('postgres:16.1')
     postgres.start()
     yield postgres
     postgres.stop()
